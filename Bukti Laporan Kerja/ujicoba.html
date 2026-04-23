@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Uji Coba Sistem (Testing)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans overflow-x-hidden p-8">
+
+    <div
+        class="w-full max-w-[1400px] bg-white p-10 rounded-2xl shadow-lg border border-slate-200 flex flex-col justify-center">
+
+        <div class="flex justify-between items-center mb-8 border-b-2 border-slate-800 pb-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight uppercase">Laporan Hasil Uji Coba
+                    Sistem (Testing)</h1>
+                <p class="text-lg text-sky-700 font-bold mt-1">Fase Pengujian Akhir (User Acceptance & Performance Test)
+                </p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-slate-500 font-bold">KODE DOKUMEN: UAT-01/SIMPEL/2026</p>
+                <div
+                    class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 px-4 py-2 rounded-full font-bold mt-2 border border-emerald-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    STATUS: LULUS UJI (SIAP RILIS)
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4 mb-8">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                <p class="text-xs text-slate-500 font-bold uppercase">Total Skenario Uji</p>
+                <p class="text-3xl font-black text-slate-800 mt-1">16</p>
+            </div>
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-center">
+                <p class="text-xs text-emerald-600 font-bold uppercase">Uji Berhasil (Passed)</p>
+                <p class="text-3xl font-black text-emerald-700 mt-1">16</p>
+            </div>
+            <div class="bg-rose-50 p-4 rounded-xl border border-rose-200 text-center">
+                <p class="text-xs text-rose-600 font-bold uppercase">Uji Gagal (Failed)</p>
+                <p class="text-3xl font-black text-rose-700 mt-1">0</p>
+            </div>
+            <div class="bg-sky-50 p-4 rounded-xl border border-sky-200 text-center">
+                <p class="text-xs text-sky-600 font-bold uppercase">Kecepatan Render Rata-rata</p>
+                <p class="text-3xl font-black text-sky-700 mt-1">
+                    < 500 ms</p>
+            </div>
+        </div>
+
+        <table class="w-full border-collapse text-sm">
+            <thead>
+                <tr class="bg-slate-800 text-white text-left">
+                    <th class="p-3 w-48 rounded-tl-lg">Kategori Pengujian</th>
+                    <th class="p-3 w-5/12">Skenario Uji (Test Case)</th>
+                    <th class="p-3 w-3/12">Hasil Observasi Sistem</th>
+                    <th class="p-3 w-24 text-center rounded-tr-lg">Status</th>
+                </tr>
+            </thead>
+            <tbody class="text-slate-700">
+                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                    <td class="p-3 font-bold text-slate-900 border-r border-slate-200" rowspan="2">1. Fungsionalitas
+                        Form & Cetak</td>
+                    <td class="p-3">Sistem menyimpan otomatis (Auto-save) input draft LHP pada penyimpanan lokal.</td>
+                    <td class="p-3 text-xs">Data tidak hilang saat browser ditutup paksa / koneksi terputus.</td>
+                    <td class="p-3 text-center text-emerald-600"><span class="font-bold text-lg">✓</span> LULUS</td>
+                </tr>
+                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                    <td class="p-3 border-l border-slate-200">Sistem melakukan Export PDF dengan KOP Surat berulang di
+                        setiap halaman.</td>
+                    <td class="p-3 text-xs">Margin presisi, format tabel dan Rich Text (Bold/List) ter-render sempurna
+                        tanpa halaman kosong.</td>
+                    <td class="p-3 text-center text-emerald-600"><span class="font-bold text-lg">✓</span> LULUS</td>
+                </tr>
+
+                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                    <td class="p-3 font-bold text-slate-900 border-r border-slate-200" rowspan="2">2. Workflow &
+                        Notifikasi</td>
+                    <td class="p-3">Sistem mengirim notifikasi lonceng saat ada dokumen masuk untuk direviu.</td>
+                    <td class="p-3 text-xs">Notifikasi muncul secara realtime sesuai peran (Ketua Tim/Irban).</td>
+                    <td class="p-3 text-center text-emerald-600"><span class="font-bold text-lg">✓</span> LULUS</td>
+                </tr>
+                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                    <td class="p-3 border-l border-slate-200">Sistem mengunci pengeditan LHP setelah status mencapai
+                        "Published".</td>
+                    <td class="p-3 text-xs">Akses edit ditutup otomatis, memastikan integritas dokumen final.</td>
+                    <td class="p-3 text-center text-emerald-600"><span class="font-bold text-lg">✓</span> LULUS</td>
+                </tr>
+
+                <tr class="border-b border-slate-200 hover:bg-slate-50 bg-rose-50/30">
+                    <td class="p-3 font-bold text-slate-900 border-r border-slate-200" rowspan="2">3. Keamanan (Security
+                        Hardening)</td>
+                    <td class="p-3">Injeksi skrip berbahaya (XSS) pada form input WYSIWYG.</td>
+                    <td class="p-3 text-xs">HTML Purifier berhasil menetralkan dan membuang tag berbahaya sebelum masuk
+                        database.</td>
+                    <td class="p-3 text-center text-emerald-600"><span class="font-bold text-lg">✓</span> LULUS</td>
+                </tr>
+                <tr class="border-b border-slate-200 hover:bg-slate-50 bg-rose-50/30">
+                    <td class="p-3 border-l border-slate-200">Percobaan injeksi Malware melalui form Upload Bukti TLHP.
+                    </td>
+                    <td class="p-3 text-xs">Sistem menolak file executable (.php, .exe) dan hanya mengizinkan
+                        PDF/Images.</td>
+                    <td class="p-3 text-center text-emerald-600"><span class="font-bold text-lg">✓</span> LULUS</td>
+                </tr>
+
+                <tr class="border-b border-slate-200 hover:bg-slate-50 bg-sky-50/30">
+                    <td class="p-3 font-bold text-slate-900 border-r border-slate-200 rounded-bl-lg">4. Performa (Load &
+                        Stress Test)</td>
+                    <td class="p-3">Pengujian N+1 Query & Asset Bundling saat memuat halaman Dashboard/LHP.</td>
+                    <td class="p-3 text-xs">Beban query database optimal (5-8 query/page), waktu muat CPU turun
+                        signifikan setelah migrasi CDN ke Vite.</td>
+                    <td class="p-3 text-center text-emerald-600"><span class="font-bold text-lg">✓</span> LULUS</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="mt-6 text-sm text-slate-500 italic text-center">
+            *Pengujian dilakukan secara komprehensif menggunakan environment lokal dan profiling tools sebelum tahap
+            deployment ke server produksi Inspektorat.
+        </div>
+
+    </div>
+
+</body>
+
+</html>

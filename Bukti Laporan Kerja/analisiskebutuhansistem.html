@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Kebutuhan Sistem SIMPEL-KETAATAN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans overflow-x-hidden">
+
+    <div
+        class="w-full max-w-[1400px] bg-white p-12 rounded-xl shadow-md border border-slate-200 m-8 flex flex-col justify-center">
+
+        <div class="mb-8 border-b-2 border-slate-800 pb-6">
+            <h1 class="text-2xl font-bold text-slate-900 uppercase text-center mb-1">
+                DOKUMEN ANALISIS KEBUTUHAN FUNGSIONAL & PENGGUNA SISTEM
+            </h1>
+            <h2 class="text-lg font-semibold text-slate-700 text-center">
+                APLIKASI SIMPEL-KETAATAN (SISTEM PENYUSUNAN LHP AUDIT KETAATAN)
+            </h2>
+        </div>
+
+        <div class="mb-6 text-slate-800 text-lg leading-relaxed text-justify">
+            <p>
+                Berdasarkan hasil identifikasi dan analisis alur kerja operasional pada Inspektorat Daerah Kabupaten
+                Barito Selatan, sistem dirancang untuk mengakomodasi hierarki persetujuan dokumen berjenjang serta
+                digitalisasi penyusunan Laporan Hasil Pemeriksaan (LHP). Berikut adalah matriks pemetaan kebutuhan
+                sistem berdasarkan hak akses pengguna:
+            </p>
+        </div>
+
+        <table class="w-full border-collapse border border-slate-400 text-base">
+            <thead>
+                <tr class="bg-slate-100 text-slate-900 text-center">
+                    <th class="border border-slate-400 p-4 w-12">No</th>
+                    <th class="border border-slate-400 p-4 w-48">Aktor / Pengguna</th>
+                    <th class="border border-slate-400 p-4 w-5/12">Kebutuhan Pengguna (User Requirement)</th>
+                    <th class="border border-slate-400 p-4">Solusi Fitur Sistem (System Feature)</th>
+                </tr>
+            </thead>
+            <tbody class="text-slate-800 align-top">
+                <tr class="hover:bg-slate-50">
+                    <td class="border border-slate-400 p-4 text-center font-bold">1</td>
+                    <td class="border border-slate-400 p-4 font-bold">Auditor</td>
+                    <td class="border border-slate-400 p-4">Perlu wadah digital untuk menyusun LHP secara bertahap
+                        (mencicil) tanpa risiko kehilangan data akibat koneksi terputus.</td>
+                    <td class="border border-slate-400 p-4">Modul <b>Form Wizard 4-Step</b> terintegrasi dengan fitur
+                        <i>Auto-Save</i> lokal dan <i>Rich Text Editor</i> (Trix).</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                    <td class="border border-slate-400 p-4 text-center font-bold">2</td>
+                    <td class="border border-slate-400 p-4 font-bold">Ketua Tim & Irban</td>
+                    <td class="border border-slate-400 p-4">Membutuhkan sistem untuk mereviu draft LHP, memberikan
+                        catatan revisi, dan menyetujui dokumen secara hierarkis berjenjang.</td>
+                    <td class="border border-slate-400 p-4"><b>Sistem Notifikasi Alur Kerja (Workflow)</b> dan Modul
+                        <i>Approval/Rejection</i> Dokumen berbasis Role.</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                    <td class="border border-slate-400 p-4 text-center font-bold">3</td>
+                    <td class="border border-slate-400 p-4 font-bold">Inspektur Daerah</td>
+                    <td class="border border-slate-400 p-4">Membutuhkan ringkasan total temuan dan kemampuan mencetak
+                        finalisasi LHP menjadi dokumen formal untuk ditandatangani.</td>
+                    <td class="border border-slate-400 p-4"><b>Dashboard Interaktif</b> (metrik LHP) dan Modul <b>Export
+                            PDF Otomatis</b> dengan format KOP Surat resmi.</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                    <td class="border border-slate-400 p-4 text-center font-bold">4</td>
+                    <td class="border border-slate-400 p-4 font-bold">Admin Sistem</td>
+                    <td class="border border-slate-400 p-4">Perlu mengelola direktori daftar OPD, mengatur pengguna, dan
+                        memantau log keamanan sistem Inspektorat.</td>
+                    <td class="border border-slate-400 p-4"><b>Panel Admin</b> terpusat yang dilengkapi dengan <i>Audit
+                            Trail</i> (Log Aktivitas) untuk melacak seluruh perubahan data.</td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                    <td class="border border-slate-400 p-4 text-center font-bold">5</td>
+                    <td class="border border-slate-400 p-4 font-bold">Auditee (Dinas)</td>
+                    <td class="border border-slate-400 p-4">Harus dapat melaporkan dan mengunggah dokumen bukti tindak
+                        lanjut atas temuan LHP yang dialamatkan kepada mereka.</td>
+                    <td class="border border-slate-400 p-4">Modul <b>Tracking TLHP</b> dengan fitur <i>Secure File
+                            Upload</i> (Validasi tipe dokumen & Pembatasan Ukuran).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="mt-8 flex justify-between items-end text-slate-700">
+            <div class="text-sm italic">
+                *Dokumen tabel ini digunakan sebagai landasan perancangan basis data dan arsitektur UI/UX
+                SIMPEL-KETAATAN.
+            </div>
+            <div class="text-right">
+                <p class="mb-12">Disetujui oleh,</p>
+                <p class="font-bold border-b border-slate-400 inline-block px-4">Tim Pengembang Sistem</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
