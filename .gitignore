@@ -17,3 +17,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+deploy.bat
+deploy.ps1
+skills*
+
