@@ -58,8 +58,14 @@
         <table width="100%" style="border-collapse: collapse; margin-top: 0;">
             <tr>
                 <td width="15%" style="text-align: center; vertical-align: middle; padding: 0; border: none;">
-                    @if(file_exists(public_path('logo.png')))
-                        <img src="{{ public_path('logo.png') }}" style="width: 80px; height: auto;">
+                    @php
+                        $logoPath = public_path('logo.png');
+                        if (!file_exists($logoPath)) {
+                            $logoPath = base_path('../public_html/logo.png');
+                        }
+                    @endphp
+                    @if(file_exists($logoPath))
+                        <img src="{{ $logoPath }}" style="width: 80px; height: auto;">
                     @else
                         <div style="width: 80px; height: 100px; border: 1px solid #ccc; text-align: center; line-height: 100px; font-size: 10px;">LOGO</div>
                     @endif

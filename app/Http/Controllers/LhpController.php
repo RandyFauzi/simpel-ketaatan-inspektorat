@@ -340,6 +340,10 @@ class LhpController extends Controller
     private function buildKopSuratHtml(): string
     {
         $logoPath = public_path('logo.png');
+        if (!file_exists($logoPath)) {
+            $logoPath = base_path('../public_html/logo.png');
+        }
+
         $logoHtml = file_exists($logoPath)
             ? '<img src="' . $logoPath . '" style="width: 80px; height: auto;">'
             : '<div style="width: 80px; height: 100px; border: 1px solid #ccc; text-align: center; line-height: 100px; font-size: 10px;">LOGO</div>';
