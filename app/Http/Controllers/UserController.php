@@ -47,6 +47,8 @@ class UserController extends Controller
             'name.unique' => 'Nama pengguna ini sudah terdaftar/digunakan dalam sistem.',
             'email.unique' => 'Email akses ini sudah terdaftar/digunakan dalam sistem.',
             'nip.unique' => 'NIP/Nomor Pegawai ini sudah terdaftar.',
+            'tim.required_if' => 'Tim penugasan wajib dipilih jika role pengguna adalah Ketua Tim atau Auditor.',
+            'opd_id.required_if' => 'Instansi OPD wajib dipilih jika role pengguna adalah SKPD.',
         ]);
 
         User::create([
@@ -90,6 +92,8 @@ class UserController extends Controller
             'name.unique' => 'Nama pengguna ini sudah terdaftar/digunakan dalam sistem.',
             'email.unique' => 'Email akses ini sudah terdaftar/digunakan dalam sistem.',
             'nip.unique' => 'NIP/Nomor Pegawai ini sudah terdaftar.',
+            'tim.required_if' => 'Tim penugasan wajib dipilih jika role pengguna adalah Ketua Tim atau Auditor.',
+            'opd_id.required_if' => 'Instansi OPD wajib dipilih jika role pengguna adalah SKPD.',
         ]);
 
         $data = [
