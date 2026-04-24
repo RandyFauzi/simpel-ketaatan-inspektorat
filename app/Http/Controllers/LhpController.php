@@ -76,11 +76,11 @@ class LhpController extends Controller
         $isDraft = $request->boolean('is_draft', true);
 
         $rules = [
-            'nomor_lhp'      => 'required|string|max:100|unique:lhps,nomor_lhp' . ($editId ? ',' . $editId : ''),
-            'tgl_lhp'        => 'required|date',
-            'judul'          => 'required|string|max:500',
-            'tahun_anggaran' => 'required|digits:4',
-            'opd_id'         => 'required|exists:opds,id',
+            'nomor_lhp'      => ($isDraft ? 'nullable' : 'required') . '|string|max:100|unique:lhps,nomor_lhp' . ($editId ? ',' . $editId : ''),
+            'tgl_lhp'        => ($isDraft ? 'nullable' : 'required') . '|date',
+            'judul'          => ($isDraft ? 'nullable' : 'required') . '|string|max:500',
+            'tahun_anggaran' => ($isDraft ? 'nullable' : 'required') . '|digits:4',
+            'opd_id'         => ($isDraft ? 'nullable' : 'required') . '|exists:opds,id',
             'sifat'          => 'nullable|string|max:100',
             'lampiran'       => 'nullable|string|max:200',
             'tujuan_surat'   => 'nullable|string|max:255',
