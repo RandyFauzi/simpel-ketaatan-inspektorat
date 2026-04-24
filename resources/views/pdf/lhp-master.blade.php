@@ -63,9 +63,16 @@
                         if (!file_exists($logoPath)) {
                             $logoPath = base_path('../public_html/logo.png');
                         }
+
+                        $base64 = null;
+                        if (file_exists($logoPath)) {
+                            $type = pathinfo($logoPath, PATHINFO_EXTENSION);
+                            $data = file_get_contents($logoPath);
+                            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                        }
                     @endphp
-                    @if(file_exists($logoPath))
-                        <img src="{{ $logoPath }}" style="width: 80px; height: auto;">
+                    @if($base64)
+                        <img src="{{ $base64 }}" style="width: 80px; height: auto;">
                     @else
                         <div style="width: 80px; height: 100px; border: 1px solid #ccc; text-align: center; line-height: 100px; font-size: 10px;">LOGO</div>
                     @endif

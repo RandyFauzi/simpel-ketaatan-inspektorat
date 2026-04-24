@@ -344,9 +344,14 @@ class LhpController extends Controller
             $logoPath = base_path('../public_html/logo.png');
         }
 
-        $logoHtml = file_exists($logoPath)
-            ? '<img src="' . $logoPath . '" style="width: 80px; height: auto;">'
-            : '<div style="width: 80px; height: 100px; border: 1px solid #ccc; text-align: center; line-height: 100px; font-size: 10px;">LOGO</div>';
+        if (file_exists($logoPath)) {
+            $type = pathinfo($logoPath, PATHINFO_EXTENSION);
+            $data = file_get_contents($logoPath);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            $logoHtml = '<img src="' . $base64 . '" style="width: 80px; height: auto;">';
+        } else {
+            $logoHtml = '<div style="width: 80px; height: 100px; border: 1px solid #ccc; text-align: center; line-height: 100px; font-size: 10px;">LOGO</div>';
+        }
 
         return '
             <table width="100%" style="border-collapse: collapse; margin-bottom: 25px;">
