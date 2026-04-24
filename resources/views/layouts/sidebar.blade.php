@@ -2,7 +2,7 @@
        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
     <div class="flex items-start justify-between h-20 px-6 py-4 border-b border-slate-100">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('logo.png') }}" class="w-10 h-10 object-contain drop-shadow-sm shrink-0" alt="Logo">
+            <img src="{{ asset('logo.webp') }}" class="w-10 h-10 object-contain drop-shadow-sm shrink-0" alt="Logo">
             <div class="flex flex-col">
                 <span class="text-sm font-bold text-primary-blue leading-tight tracking-wide">SIMPEL-KETAATAN</span>
                 <span class="text-[9px] text-slate-500 leading-tight mt-0.5 font-medium">Sistem Penyusunan dan<br>Pelaporan LHP Audit Ketaatan</span>

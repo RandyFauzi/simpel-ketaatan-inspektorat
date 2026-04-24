@@ -30,7 +30,7 @@
         <!-- Branding -->
         <div class="text-center mb-8 animate-fade-in-up">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-200 mb-5 p-2.5">
-                <img src="{{ asset('logo.png') }}" alt="Logo" class="w-full h-full object-contain">
+                <img src="{{ asset('logo.webp') }}" alt="Logo" class="w-full h-full object-contain">
             </div>
             <h1 class="text-2xl sm:text-[26px] font-extrabold text-slate-800 tracking-tight leading-tight">
                 SIMPEL-KETAATAN
