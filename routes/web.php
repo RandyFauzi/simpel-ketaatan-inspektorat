@@ -64,10 +64,8 @@ Route::middleware('auth')->group(function () {
         // Full access to LHPs via Model Binding UUID
         Route::get('/lhp/create', [LhpController::class, 'create'])->name('lhp.create');
         Route::post('/lhp', [LhpController::class, 'store'])->name('lhp.store');
-        Route::get('/lhp/{lhp}/preview', [LhpController::class, 'preview'])->name('lhp.preview');
         Route::patch('/lhp/{lhp}/submit-review', [LhpController::class, 'submitForReview'])->name('lhp.submit-review');
         Route::patch('/lhp/{lhp}/finalize', [LhpController::class, 'finalize'])->name('lhp.finalize');
-        Route::get('/lhp/{lhp}/export', [LhpController::class, 'export'])->name('lhp.export');
 
         // Findings update
         Route::patch('/findings/{finding}', [FindingController::class, 'update'])->name('findings.update');
@@ -81,6 +79,10 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
         Route::post('/lhp/{lhp}/review', [\App\Http\Controllers\ReviewController::class, 'store'])->name('lhp.review.store');
     });
+
+    // Akses Lihat PDF dan Export (Mata Dewa / Otorisasi Khusus)
+    Route::get('/auditor/lhp/{lhp}/preview', [LhpController::class, 'preview'])->name('auditor.lhp.preview');
+    Route::get('/auditor/lhp/{lhp}/export', [LhpController::class, 'export'])->name('auditor.lhp.export');
 
     // Unpublish Route (Khusus Inspektur Daerah & Admin)
     Route::middleware(\App\Http\Middleware\RoleMiddleware::class.':admin,inspektur_daerah')

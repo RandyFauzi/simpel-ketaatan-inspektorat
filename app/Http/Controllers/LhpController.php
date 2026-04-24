@@ -227,6 +227,12 @@ class LhpController extends Controller
      */
     public function preview(Lhp $lhp): View
     {
+        $user = auth()->user();
+        $pimpinanRoles = ['admin', 'inspektur_daerah', 'inspektur_pembantu', 'inspektur_pembantu_1'];
+        if (!in_array($user->role, $pimpinanRoles) && $user->tim !== $lhp->tim) {
+            abort(403, 'Akses Ditolak. Anda hanya dapat melihat pratinjau LHP milik tim Anda sendiri.');
+        }
+
         $lhp->load([
             'opd',
             'content',
@@ -278,6 +284,12 @@ class LhpController extends Controller
      */
     public function export(Lhp $lhp)
     {
+        $user = auth()->user();
+        $pimpinanRoles = ['admin', 'inspektur_daerah', 'inspektur_pembantu', 'inspektur_pembantu_1'];
+        if (!in_array($user->role, $pimpinanRoles) && $user->tim !== $lhp->tim) {
+            abort(403, 'Akses Ditolak. Anda hanya dapat mengekspor LHP milik tim Anda sendiri.');
+        }
+
         $lhp->load(['opd', 'content', 'findings.recommendations']);
         $data = [
             'lhp' => $lhp,
