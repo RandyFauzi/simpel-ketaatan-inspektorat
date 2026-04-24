@@ -35,7 +35,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => ['required', Rule::in(['admin', 'inspektur_daerah', 'inspektur_pembantu_1', 'ketua_tim', 'auditor', 'skpd'])],
@@ -43,6 +43,10 @@ class UserController extends Controller
             'opd_id' => ['nullable', 'required_if:role,skpd', 'exists:opds,id'],
             'nip' => 'nullable|string|max:50|unique:users',
             'jabatan' => 'nullable|string|max:255',
+        ], [
+            'name.unique' => 'Nama pengguna ini sudah terdaftar/digunakan dalam sistem.',
+            'email.unique' => 'Email akses ini sudah terdaftar/digunakan dalam sistem.',
+            'nip.unique' => 'NIP/Nomor Pegawai ini sudah terdaftar.',
         ]);
 
         User::create([
@@ -74,7 +78,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'role' => ['required', Rule::in(['admin', 'inspektur_daerah', 'inspektur_pembantu_1', 'ketua_tim', 'auditor', 'skpd'])],
             'tim' => ['nullable', 'required_if:role,ketua_tim,auditor', Rule::in(['tim_1', 'tim_2'])],
@@ -82,6 +86,10 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8',
             'nip' => ['nullable', 'string', 'max:50', Rule::unique('users')->ignore($user->id)],
             'jabatan' => 'nullable|string|max:255',
+        ], [
+            'name.unique' => 'Nama pengguna ini sudah terdaftar/digunakan dalam sistem.',
+            'email.unique' => 'Email akses ini sudah terdaftar/digunakan dalam sistem.',
+            'nip.unique' => 'NIP/Nomor Pegawai ini sudah terdaftar.',
         ]);
 
         $data = [
