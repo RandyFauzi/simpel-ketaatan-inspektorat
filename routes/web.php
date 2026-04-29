@@ -72,7 +72,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Review Collaboration (Approve & Return)
-    Route::middleware(\App\Http\Middleware\RoleMiddleware::class.':admin,ketua_tim,inspektur_pembantu_1,inspektur_daerah')
+    Route::middleware(\App\Http\Middleware\RoleMiddleware::class.':admin,ketua_tim,inspektur_pembantu,inspektur_pembantu_1,inspektur_pembantu_2,inspektur_pembantu_3,inspektur_pembantu_4')
         ->group(function () {
         Route::post('/lhp/{lhp}/review', [\App\Http\Controllers\ReviewController::class, 'store'])->name('lhp.review.store');
     });

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class ReviewController extends Controller
 {
@@ -20,14 +21,14 @@ class ReviewController extends Controller
     {
         $currentUser = auth()->user();
         $role = $currentUser->role;
+        $isIrban = Str::startsWith((string) $role, 'inspektur_pembantu');
         
         $allowedActions = [];
         if ($role === 'ketua_tim') {
             $allowedActions = ['draft', 'review_irban'];
-        } elseif ($role === 'inspektur_pembantu_1') {
-            $allowedActions = ['review_ketua', 'review_inspektur'];
-        } elseif ($role === 'inspektur_daerah') {
-            $allowedActions = ['review_irban', 'published'];
+        } elseif ($isIrban) {
+            // Irban menjadi level final approval.
+            $allowedActions = ['review_ketua', 'published'];
         }
 
         $request->validate([
@@ -44,16 +45,11 @@ class ReviewController extends Controller
             $logAction = 'Mengembalikan LHP ke Auditor dengan catatan revisi';
         } elseif ($role === 'ketua_tim' && $action === 'review_irban') {
             $logAction = 'Menyetujui dokumen dan meneruskannya ke Inspektur Pembantu I';
-        } elseif ($role === 'inspektur_pembantu_1' && $action === 'review_ketua') {
+        } elseif ($isIrban && $action === 'review_ketua') {
             $isReturning = true;
             $logAction = 'Mengembalikan LHP ke tingkat Ketua Tim dengan catatan revisi';
-        } elseif ($role === 'inspektur_pembantu_1' && $action === 'review_inspektur') {
-            $logAction = 'Menyetujui dokumen dan meneruskannya ke Inspektur Daerah';
-        } elseif ($role === 'inspektur_daerah' && $action === 'review_irban') {
-            $isReturning = true;
-            $logAction = 'Mengembalikan LHP ke tingkat Inspektur Pembantu I dengan catatan revisi';
-        } elseif ($role === 'inspektur_daerah' && $action === 'published') {
-            $logAction = 'Mengesahkan dan Mempublikasikan LHP secara resmi';
+        } elseif ($isIrban && $action === 'published') {
+            $logAction = 'Mengesahkan dan menyelesaikan LHP secara resmi';
         }
 
         if ($isReturning && trim((string) $request->input('catatan', '')) === '') {
@@ -136,7 +132,15 @@ class ReviewController extends Controller
         }
 
         if ($reviewerRole === 'ketua_tim' && $action === 'review_irban') {
-            $targets = User::where('role', 'inspektur_pembantu_1')->get();
+            $targets = User::query()
+                ->where(function ($q) {
+                    $q->where('role', 'inspektur_pembantu')
+                      ->orWhere('role', 'inspektur_pembantu_1')
+                      ->orWhere('role', 'inspektur_pembantu_2')
+                      ->orWhere('role', 'inspektur_pembantu_3')
+                      ->orWhere('role', 'inspektur_pembantu_4');
+                })
+                ->get();
             Notification::send($targets, new LhpWorkflowNotification(
                 $lhp,
                 'LHP Menunggu Reviu: ' . $lhp->judul . ' telah disetujui Ketua Tim.',
@@ -145,20 +149,13 @@ class ReviewController extends Controller
             return;
         }
 
-        if ($reviewerRole === 'inspektur_pembantu_1' && $action === 'review_inspektur') {
-            $targets = User::where('role', 'inspektur_daerah')->get();
-            Notification::send($targets, new LhpWorkflowNotification(
-                $lhp,
-                'LHP Menunggu Finalisasi: ' . $lhp->judul . ' siap untuk dipublish.',
-                $url
-            ));
-            return;
-        }
-
-        if ($reviewerRole === 'inspektur_daerah' && $action === 'published') {
+        if (Str::startsWith((string) $reviewerRole, 'inspektur_pembantu') && $action === 'published') {
             $targets = User::query()
                 ->where(function ($query) use ($lhp) {
-                    $query->whereIn('role', ['inspektur_pembantu_1'])
+                    $query->where(function ($q) {
+                        $q->where('role', 'inspektur_daerah')
+                          ->orWhere('role', 'admin');
+                    })
                         ->orWhere(function ($q) use ($lhp) {
                             $q->whereIn('role', ['auditor', 'ketua_tim']);
                             if (!empty($lhp->tim)) {
@@ -170,7 +167,7 @@ class ReviewController extends Controller
 
             Notification::send($targets, new LhpWorkflowNotification(
                 $lhp,
-                'LHP Terpublikasi! ' . $lhp->judul . ' telah sah diterbitkan.',
+                'LHP Final! ' . $lhp->judul . ' telah disahkan di tingkat Irban.',
                 $url
             ));
         }

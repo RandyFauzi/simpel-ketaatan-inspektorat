@@ -502,8 +502,7 @@
 
                 <!-- Form Aksi Reviu -->
                 @if( (auth()->user()->role === 'ketua_tim' && $lhp->status === 'review_ketua') || 
-                     (auth()->user()->role === 'inspektur_pembantu_1' && $lhp->status === 'review_irban') ||
-                     (auth()->user()->role === 'inspektur_daerah' && $lhp->status === 'review_inspektur') )
+                     (str_starts_with((string) auth()->user()->role, 'inspektur_pembantu') && $lhp->status === 'review_irban') )
                 <div class="w-full lg:w-96 shrink-0">
                     <div class="sticky top-24">
                         <div class="bg-indigo-50 border border-indigo-100 rounded-3xl p-6 shadow-sm">
@@ -533,18 +532,12 @@
                                             $actionTeruskan = 'review_irban';
                                             $labelTeruskan = 'Teruskan ke Irban I';
                                             $confirmTitle = 'Teruskan ke Irban I?';
-                                        } elseif ($role === 'inspektur_pembantu_1') {
+                                        } elseif (str_starts_with((string) $role, 'inspektur_pembantu')) {
                                             $actionKembalikan = 'review_ketua';
                                             $labelKembalikan = 'Kembalikan ke Ketua Tim';
-                                            $actionTeruskan = 'review_inspektur';
-                                            $labelTeruskan = 'Teruskan ke Inspektur Daerah';
-                                            $confirmTitle = 'Teruskan ke Inspektur Daerah?';
-                                        } elseif ($role === 'inspektur_daerah') {
-                                            $actionKembalikan = 'review_irban';
-                                            $labelKembalikan = 'Kembalikan ke Irban I';
                                             $actionTeruskan = 'published';
-                                            $labelTeruskan = 'Setujui & Terbitkan';
-                                            $confirmTitle = 'Setujui & Terbitkan LHP?';
+                                            $labelTeruskan = 'Sahkan LHP';
+                                            $confirmTitle = 'Sahkan LHP ini?';
                                         }
                                     @endphp
 
