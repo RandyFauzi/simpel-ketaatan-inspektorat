@@ -73,17 +73,12 @@
         </x-ui.badge>
         
         <div class="flex items-center gap-2 mt-1">
-            @if($lhp->status === 'published')
-            <a href="{{ route('auditor.lhp.export', $lhp->id) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
-                <x-lucide-printer class="w-4 h-4" /> Cetak Dokumen PDF
+            <a href="{{ route('auditor.lhp.export', $lhp->id) }}" target="_blank"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-bold rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
+                <x-lucide-file-text class="w-4 h-4" /> Review PDF
             </a>
-            @endif
 
             @if(auth()->user()->role === 'auditor' && $lhp->status === 'draft')
-                <a href="{{ route('auditor.lhp.export', $lhp->id) }}" target="_blank"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-bold rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
-                    <x-lucide-file-text class="w-4 h-4" /> Review PDF
-                </a>
                 <form action="{{ route('auditor.lhp.submit-review', $lhp->id) }}" method="POST" x-data @submit.prevent="Swal.fire({
                     title: 'Ajukan ke Ketua Tim?',
                     text: 'Ajukan LHP ini untuk direviu oleh Ketua Tim? Pastikan seluruh data telah dikonfirmasi dan lengkap.',
@@ -477,9 +472,7 @@
                                     <h4 class="font-bold text-slate-800">{{ $review->reviewer->name }}</h4>
                                     <p class="text-[10px] uppercase font-black tracking-widest text-slate-400">{{ str_replace('_', ' ', $review->reviewer->role) }}</p>
                                 </div>
-                                <span class="text-[10px] font-bold text-slate-400 bg-white px-2 py-1 border border-slate-100 rounded-md">
-                                    {{ $review->created_at->translatedFormat('d M Y - H:i') }}
-                                </span>
+                                
                             </div>
                             <div class="text-sm text-slate-700 leading-relaxed bg-white p-3 rounded-lg border border-slate-100">
                                 {!! nl2br(e($review->catatan)) !!}
@@ -652,9 +645,7 @@
                         <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:border-blue-100 transition-all">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
                                 <h4 class="font-bold text-slate-800">{{ $log->user->name ?? 'System Auto-Task' }}</h4>
-                                <span class="text-[11px] font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100 whitespace-nowrap flex items-center gap-1.5">
-                                    <x-lucide-clock class="w-3 h-3" /> {{ $log->created_at->translatedFormat('d M Y - H:i') }}
-                                </span>
+                                
                             </div>
                             <p class="text-[10px] font-black tracking-widest uppercase text-slate-300 mb-3">
                                 {{ $log->user ? str_replace('_', ' ', $log->user->role) : 'SYSTEM GENERATED' }}
