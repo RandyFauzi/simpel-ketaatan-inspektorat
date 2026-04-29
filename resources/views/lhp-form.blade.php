@@ -35,11 +35,19 @@
             display: block;
         }
 
+        .sun-editor-editable ol {
+            list-style-type: decimal;
+        }
+
         .sun-editor-editable ol ol {
             list-style-type: lower-alpha;
         }
 
         .sun-editor-editable ol ol ol {
+            list-style-type: upper-alpha;
+        }
+
+        .sun-editor-editable ol ol ol ol {
             list-style-type: lower-roman;
         }
 

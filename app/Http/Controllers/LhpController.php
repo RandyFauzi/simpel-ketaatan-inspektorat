@@ -14,6 +14,7 @@ use Illuminate\View\View;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use setasign\Fpdi\Fpdi;
 
@@ -428,7 +429,13 @@ class LhpController extends Controller
     {
         abort_unless(auth()->user()?->role === 'admin', 403, 'Akses ditolak.');
 
-        $lhp->delete();
+        DB::transaction(function () use ($lhp) {
+            // Karena nomor_lhp UNIQUE dan model menggunakan soft delete,
+            // kita arsipkan nomor dulu agar nomor asli bisa dipakai kembali.
+            $archivedNo = $lhp->nomor_lhp . ' [DELETED-' . now()->format('YmdHis') . ']';
+            $lhp->update(['nomor_lhp' => Str::limit($archivedNo, 100, '')]);
+            $lhp->delete();
+        });
 
         return redirect()->route('lhp.index')
             ->with('success', 'LHP berhasil dihapus.');

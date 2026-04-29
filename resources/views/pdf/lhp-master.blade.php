@@ -57,6 +57,20 @@
         .tim-pemeriksa li {
             margin-bottom: 4px;
         }
+
+        /* Konsistensi list bertingkat dari editor ke PDF */
+        main ol {
+            list-style-type: decimal;
+        }
+        main ol ol {
+            list-style-type: lower-alpha;
+        }
+        main ol ol ol {
+            list-style-type: upper-alpha;
+        }
+        main ol ol ol ol {
+            list-style-type: lower-roman;
+        }
     </style>
 </head>
 
