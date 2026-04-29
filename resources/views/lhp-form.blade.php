@@ -3,56 +3,49 @@
 
 @section('content')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/suneditor@2.47.8/dist/css/suneditor.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/suneditor@2.47.8/dist/suneditor.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/suneditor@2.47.8/dist/suneditor.min.js"></script>
     <style>
         .sun-editor {
             border-color: rgb(226 232 240) !important;
             border-radius: 0.75rem !important;
-            font-family: inherit !important;
+            background: #fff;
         }
 
-        .sun-editor .se-wrapper {
-            min-height: 180px;
-        }
-
-        .sun-editor-large .sun-editor .se-wrapper {
-            min-height: 320px;
-        }
-
-        .sun-editor-findings-large .sun-editor .se-wrapper {
-            min-height: 250px;
-        }
-
-        .sun-editor .se-btn-list {
-            z-index: 40;
+        .sun-editor .se-toolbar {
+            border-bottom: 1px solid rgb(226 232 240);
         }
 
         .sun-editor .se-toolbar {
             display: none;
         }
 
-        .sun-editor.is-active .se-toolbar {
+        .sun-editor:focus-within .se-toolbar {
             display: block;
         }
 
-        .sun-editor-editable ol {
-            list-style-type: decimal;
+        .sun-editor .se-wrapper {
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
         }
 
-        .sun-editor-editable ol ol {
-            list-style-type: lower-alpha;
+        .sun-editor .se-list-layer .se-btn-list {
+            list-style-position: inside;
         }
 
-        .sun-editor-editable ol ol ol {
-            list-style-type: upper-alpha;
+        .sun-editor .custom-list-style-wrap {
+            display: inline-flex;
+            gap: 6px;
+            margin-left: 8px;
+            vertical-align: middle;
         }
 
-        .sun-editor-editable ol ol ol ol {
-            list-style-type: lower-roman;
-        }
-
-        .sun-editor-editable ul ul {
-            list-style-type: circle;
+        .sun-editor .custom-list-style-wrap select {
+            height: 28px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 12px;
+            padding: 0 8px;
+            background: #fff;
         }
     </style>
 
@@ -595,85 +588,97 @@
         document.addEventListener('DOMContentLoaded', function () {
             const initializedEditors = new Map();
 
-            const getEditorContextClass = (trixNode) => {
-                if (trixNode.classList.contains('trix-findings-large')) {
-                    return 'sun-editor-findings-large';
-                }
-                if (trixNode.closest('.trix-large')) {
-                    return 'sun-editor-large';
-                }
-                return '';
+            const getEditorMinHeight = (trixNode) => {
+                if (trixNode.classList.contains('trix-findings-large')) return '250px';
+                if (trixNode.closest('.trix-large')) return '320px';
+                return '180px';
             };
 
             const initSunEditorFromTrix = (trixNode) => {
-                if (!trixNode || trixNode.dataset.sunInitialized === '1') return;
+                if (!trixNode || trixNode.dataset.sunEditorInitialized === '1') return;
                 const hiddenInputId = trixNode.getAttribute('input');
-                if (!hiddenInputId) return;
+                if (!hiddenInputId || initializedEditors.has(hiddenInputId)) return;
 
                 const hiddenInput = document.getElementById(hiddenInputId);
                 if (!hiddenInput) return;
 
-                const wrapper = document.createElement('div');
-                const contextClass = getEditorContextClass(trixNode);
-                if (contextClass) wrapper.classList.add(contextClass);
+                trixNode.style.display = 'none';
+                trixNode.dataset.sunEditorInitialized = '1';
 
                 const textarea = document.createElement('textarea');
                 textarea.id = 'sun_' + hiddenInputId;
-                textarea.className = 'suneditor-sync w-full';
                 textarea.value = hiddenInput.value || '';
-                wrapper.appendChild(textarea);
-
-                trixNode.insertAdjacentElement('afterend', wrapper);
-                trixNode.style.display = 'none';
-                trixNode.dataset.sunInitialized = '1';
+                trixNode.insertAdjacentElement('afterend', textarea);
 
                 const editor = SUNEDITOR.create(textarea, {
-                    height: 'auto',
-                    minHeight: trixNode.classList.contains('trix-findings-large') ? '250px' : '180px',
+                    minHeight: getEditorMinHeight(trixNode),
+                    width: '100%',
+                    resizingBar: true,
+                    defaultStyle: 'font-family: Times New Roman; font-size: 12pt; line-height: 1.6;',
+                    formats: ['p', 'h1', 'h2', 'h3', 'blockquote'],
+                    paragraphStyles: ['spaced', 'bordered'],
+                    listStyles: ['disc', 'circle', 'square', 'decimal', 'lower-alpha', 'upper-alpha', 'lower-roman', 'upper-roman'],
                     buttonList: [
                         ['undo', 'redo'],
                         ['font', 'fontSize', 'formatBlock'],
-                        ['bold', 'underline', 'italic', 'strike'],
+                        ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript', 'removeFormat'],
                         ['fontColor', 'hiliteColor'],
-                        ['align', 'horizontalRule'],
-                        ['list', 'outdent', 'indent'],
+                        ['outdent', 'indent'],
+                        ['align', 'horizontalRule', 'list', 'lineHeight', 'paragraphStyle'],
                         ['table', 'link'],
-                        ['removeFormat', 'codeView']
-                    ],
-                    formats: ['p', 'h1', 'h2', 'h3', 'blockquote'],
-                    defaultTag: 'p',
+                        ['fullScreen', 'codeView']
+                    ]
                 });
 
-                editor.onChange = function (contents) {
+                const sync = () => {
+                    const contents = editor.getContents();
                     hiddenInput.value = contents;
                     hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
                     hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
                 };
 
-                const setActiveEditor = () => {
-                    document.querySelectorAll('.sun-editor.is-active').forEach((node) => {
-                        node.classList.remove('is-active');
+                const addListStyleControls = () => {
+                    const toolbar = editor.core?.context?.toolBar?.element
+                        || editor.core?.context?.element?.toolbar
+                        || editor.context?.toolBar?.element;
+                    if (!toolbar || toolbar.querySelector('.custom-list-style-wrap')) return;
+
+                    const wrap = document.createElement('span');
+                    wrap.className = 'custom-list-style-wrap';
+
+                    const olSelect = document.createElement('select');
+                    olSelect.innerHTML = `
+                        <option value="">Numbering</option>
+                        <option value="decimal">1,2,3</option>
+                        <option value="lower-alpha">a,b,c</option>
+                        <option value="upper-alpha">A,B,C</option>
+                        <option value="lower-roman">i,ii,iii</option>
+                        <option value="upper-roman">I,II,III</option>
+                    `;
+
+                    const applyListStyle = (tagName, styleType) => {
+                        if (!styleType) return;
+                        const sel = window.getSelection();
+                        if (!sel || sel.rangeCount === 0) return;
+                        let node = sel.anchorNode;
+                        if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+                        const listNode = node ? node.closest(tagName) : null;
+                        if (!listNode) return;
+                        listNode.style.listStyleType = styleType;
+                    };
+
+                    olSelect.addEventListener('change', () => {
+                        applyListStyle('ol', olSelect.value);
+                        sync();
                     });
 
-                    const editorRoot = wrapper.querySelector('.sun-editor');
-                    if (editorRoot) {
-                        editorRoot.classList.add('is-active');
-                    }
+                    wrap.appendChild(olSelect);
+                    toolbar.appendChild(wrap);
                 };
-
-                const editableNode = wrapper.querySelector('.sun-editor-editable');
-                if (editableNode) {
-                    editableNode.addEventListener('focus', setActiveEditor);
-                    editableNode.addEventListener('click', setActiveEditor);
-                }
-
-                // Default: toolbar disembunyikan, tampil saat editor ini aktif.
-                setTimeout(() => {
-                    const editorRoot = wrapper.querySelector('.sun-editor');
-                    if (editorRoot) {
-                        editorRoot.classList.remove('is-active');
-                    }
-                }, 0);
+                editor.onChange = sync;
+                editor.onBlur = sync;
+                sync();
+                setTimeout(addListStyleControls, 0);
 
                 initializedEditors.set(hiddenInputId, { editor, hiddenInput });
             };
@@ -684,17 +689,17 @@
 
             bootstrapAllEditors();
 
-            const observer = new MutationObserver(() => {
-                bootstrapAllEditors();
-            });
+            const observer = new MutationObserver(() => bootstrapAllEditors());
             observer.observe(document.body, { childList: true, subtree: true });
 
             const form = document.getElementById('lhp-main-form');
             if (form) {
                 form.addEventListener('submit', function () {
                     initializedEditors.forEach((ctx) => {
-                        ctx.hiddenInput.value = ctx.editor.getContents();
-                        ctx.hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        if (ctx.editor && typeof ctx.editor.getContents === 'function') {
+                            ctx.hiddenInput.value = ctx.editor.getContents();
+                            ctx.hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
                     });
                 });
             }
