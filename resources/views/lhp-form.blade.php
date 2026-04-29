@@ -2,35 +2,49 @@
 @section('title', 'Buat LHP Baru')
 
 @section('content')
-    <link rel="stylesheet" href="https://unpkg.com/trix@2.0.0/dist/trix.css">
-    <script src="https://unpkg.com/trix@2.0.0/dist/trix.umd.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/suneditor@2.47.8/dist/css/suneditor.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/suneditor@2.47.8/dist/suneditor.min.js" defer></script>
     <style>
-        .trix-content {
+        .sun-editor {
+            border-color: rgb(226 232 240) !important;
+            border-radius: 0.75rem !important;
+            font-family: inherit !important;
+        }
+
+        .sun-editor .se-wrapper {
             min-height: 180px;
         }
 
-        .trix-large .trix-content {
+        .sun-editor-large .sun-editor .se-wrapper {
             min-height: 320px;
         }
 
-        .trix-findings-large .trix-content {
+        .sun-editor-findings-large .sun-editor .se-wrapper {
             min-height: 250px;
         }
 
-        .trix-wrapper trix-toolbar {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            margin-bottom: 8px;
+        .sun-editor .se-btn-list {
+            z-index: 40;
         }
 
-        .trix-wrapper:focus-within trix-toolbar {
+        .sun-editor .se-toolbar {
+            display: none;
+        }
+
+        .sun-editor.is-active .se-toolbar {
             display: block;
-            opacity: 1;
         }
 
-        trix-toolbar .trix-button-group--file-tools {
-            display: none;
+        .sun-editor-editable ol ol {
+            list-style-type: lower-alpha;
+        }
+
+        .sun-editor-editable ol ol ol {
+            list-style-type: lower-roman;
+        }
+
+        .sun-editor-editable ul ul {
+            list-style-type: circle;
         }
     </style>
 
@@ -98,9 +112,7 @@
             @submit.prevent="submitForm($event)">
             @csrf
             <input type="hidden" name="is_draft" value="1">
-            @if($lhp)
-                <input type="hidden" name="edit_id" value="{{ $lhp->id }}">
-            @endif
+            <input type="hidden" name="edit_id" x-model="serverEditId">
 
             <div x-show="step === 1" x-transition.opacity.duration.300ms>
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -211,8 +223,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Tanggal SPT</label>
-                                    <input type="text" name="tanggal_spt" x-model="form.tanggal_spt"
-                                        placeholder="Contoh: 23 April 2026"
+                                    <input type="date" name="tanggal_spt" x-model="form.tanggal_spt"
                                         class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm">
                                 </div>
                             </div>
@@ -227,9 +238,9 @@
                                 <div class="space-y-2">
                                     <template x-for="(item, idx) in form.tembusan" :key="'tembusan-'+idx">
                                         <div class="flex items-center gap-2">
-                                            <input type="text" name="metadata_tambahan[tembusan][]" x-model="form.tembusan[idx]"
+                                            <textarea name="metadata_tambahan[tembusan][]" x-model="form.tembusan[idx]" rows="1"
                                                 placeholder="Contoh: Wakil Bupati Kabupaten Barito Selatan"
-                                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm">
+                                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm leading-normal min-h-[42px] resize-y"></textarea>
                                             <button type="button" @click="removeTembusan(idx)"
                                                 class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
                                                 title="Hapus Tembusan">
@@ -571,31 +582,114 @@
         </div>
     </div>
     <script>
-        document.addEventListener('trix-file-accept', function (event) { event.preventDefault(); });
-        document.addEventListener('trix-change', function (event) {
-            const inputId = event.target.getAttribute('input');
-            const hiddenInput = inputId ? document.getElementById(inputId) : null;
-            if (hiddenInput) hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
-        });
+        const AUTOSAVE_URL = @json(route('auditor.lhp.autosave'));
+        const CSRF_TOKEN = @json(csrf_token());
         document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(function () {
-                document.querySelectorAll('trix-editor').forEach(function (editor) {
-                    if (editor.closest('.trix-wrapper')) return;
-                    const parent = editor.parentNode;
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'trix-wrapper';
-                    const toolbar = editor.toolbarElement || (editor.getAttribute('toolbar') ? document.getElementById(editor.getAttribute('toolbar')) : null);
-                    parent.insertBefore(wrapper, editor);
-                    if (toolbar && toolbar.parentNode === parent) wrapper.appendChild(toolbar);
-                    wrapper.appendChild(editor);
+            const initializedEditors = new Map();
+
+            const getEditorContextClass = (trixNode) => {
+                if (trixNode.classList.contains('trix-findings-large')) {
+                    return 'sun-editor-findings-large';
+                }
+                if (trixNode.closest('.trix-large')) {
+                    return 'sun-editor-large';
+                }
+                return '';
+            };
+
+            const initSunEditorFromTrix = (trixNode) => {
+                if (!trixNode || trixNode.dataset.sunInitialized === '1') return;
+                const hiddenInputId = trixNode.getAttribute('input');
+                if (!hiddenInputId) return;
+
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if (!hiddenInput) return;
+
+                const wrapper = document.createElement('div');
+                const contextClass = getEditorContextClass(trixNode);
+                if (contextClass) wrapper.classList.add(contextClass);
+
+                const textarea = document.createElement('textarea');
+                textarea.id = 'sun_' + hiddenInputId;
+                textarea.className = 'suneditor-sync w-full';
+                textarea.value = hiddenInput.value || '';
+                wrapper.appendChild(textarea);
+
+                trixNode.insertAdjacentElement('afterend', wrapper);
+                trixNode.style.display = 'none';
+                trixNode.dataset.sunInitialized = '1';
+
+                const editor = SUNEDITOR.create(textarea, {
+                    height: 'auto',
+                    minHeight: trixNode.classList.contains('trix-findings-large') ? '250px' : '180px',
+                    buttonList: [
+                        ['undo', 'redo'],
+                        ['font', 'fontSize', 'formatBlock'],
+                        ['bold', 'underline', 'italic', 'strike'],
+                        ['fontColor', 'hiliteColor'],
+                        ['align', 'horizontalRule'],
+                        ['list', 'outdent', 'indent'],
+                        ['table', 'link'],
+                        ['removeFormat', 'codeView']
+                    ],
+                    formats: ['p', 'h1', 'h2', 'h3', 'blockquote'],
+                    defaultTag: 'p',
                 });
 
-                document.querySelectorAll('trix-editor[input]').forEach(function (editor) {
-                    const inputId = editor.getAttribute('input');
-                    const hiddenInput = inputId ? document.getElementById(inputId) : null;
-                    if (hiddenInput && hiddenInput.value && editor.editor) editor.editor.loadHTML(hiddenInput.value);
+                editor.onChange = function (contents) {
+                    hiddenInput.value = contents;
+                    hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                };
+
+                const setActiveEditor = () => {
+                    document.querySelectorAll('.sun-editor.is-active').forEach((node) => {
+                        node.classList.remove('is-active');
+                    });
+
+                    const editorRoot = wrapper.querySelector('.sun-editor');
+                    if (editorRoot) {
+                        editorRoot.classList.add('is-active');
+                    }
+                };
+
+                const editableNode = wrapper.querySelector('.sun-editor-editable');
+                if (editableNode) {
+                    editableNode.addEventListener('focus', setActiveEditor);
+                    editableNode.addEventListener('click', setActiveEditor);
+                }
+
+                // Default: toolbar disembunyikan, tampil saat editor ini aktif.
+                setTimeout(() => {
+                    const editorRoot = wrapper.querySelector('.sun-editor');
+                    if (editorRoot) {
+                        editorRoot.classList.remove('is-active');
+                    }
+                }, 0);
+
+                initializedEditors.set(hiddenInputId, { editor, hiddenInput });
+            };
+
+            const bootstrapAllEditors = () => {
+                document.querySelectorAll('trix-editor[input]').forEach(initSunEditorFromTrix);
+            };
+
+            bootstrapAllEditors();
+
+            const observer = new MutationObserver(() => {
+                bootstrapAllEditors();
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            const form = document.getElementById('lhp-main-form');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    initializedEditors.forEach((ctx) => {
+                        ctx.hiddenInput.value = ctx.editor.getContents();
+                        ctx.hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
                 });
-            }, 0);
+            }
         });
 
         function lhpWizard() {
@@ -628,6 +722,9 @@
                 fieldErrors: {},
                 submitting: false,
                 autosaveTimer: null,
+                autosaveServerTimer: null,
+                lastServerAutosaveAt: null,
+                serverEditId: isEdit ? editData.id : '',
                 autosaveLabel: 'Auto-save aktif',
                 form: {
                     nomor_lhp: isEdit ? editData.nomor_lhp : '',
@@ -725,6 +822,9 @@
                 queueAutosave() {
                     if (this.autosaveTimer) clearTimeout(this.autosaveTimer);
                     this.autosaveTimer = setTimeout(() => this.saveLocal(false), 800);
+
+                    if (this.autosaveServerTimer) clearTimeout(this.autosaveServerTimer);
+                    this.autosaveServerTimer = setTimeout(() => this.saveDraftToServer(), 1600);
                 },
                 saveLocal(showLabel) {
                     try {
@@ -735,10 +835,46 @@
                         if (showLabel) setTimeout(() => { this.autosaveLabel = 'Auto-save aktif'; }, 2200);
                     } catch (e) { }
                 },
+                async saveDraftToServer() {
+                    if (this.submitting) return;
+
+                    const payload = {
+                        ...this.form,
+                        is_draft: 1,
+                        edit_id: this.serverEditId || undefined
+                    };
+
+                    try {
+                        const response = await fetch(AUTOSAVE_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': CSRF_TOKEN,
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            body: JSON.stringify(payload),
+                            credentials: 'same-origin'
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Gagal autosave ke server');
+                        }
+
+                        const data = await response.json();
+                        this.lastServerAutosaveAt = data.updated_at || null;
+                        if (!this.serverEditId && data.lhp_id) {
+                            this.serverEditId = data.lhp_id;
+                        }
+                    } catch (error) {
+                        console.error(error);
+                    }
+                },
                 submitCurrentForm() {
                     this.submitting = true;
                     this.saveLocal(true);
-                    localStorage.removeItem(storageKey);
+                    // Jangan hapus draft lokal di sini.
+                    // Jika validasi gagal (contoh: nomor LHP duplikat), user tetap bisa lanjut dari isian terakhir.
                     document.getElementById('lhp-main-form').submit();
                 },
                 submitForm(event) { event.preventDefault(); this.submitCurrentForm(); },

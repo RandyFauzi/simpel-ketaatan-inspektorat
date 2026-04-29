@@ -80,7 +80,7 @@ class Lhp extends Model
      */
     public function findings(): HasMany
     {
-        return $this->hasMany(Finding::class, 'lhp_id', 'id');
+        return $this->hasMany(Finding::class, 'lhp_id', 'id')->orderBy('id', 'asc');
     }
 
     /**

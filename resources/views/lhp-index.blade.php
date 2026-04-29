@@ -102,6 +102,27 @@
                                 <x-lucide-edit-3 class="w-5 h-5" />
                             </a>
                             @endif
+
+                            @if(auth()->user()->role === 'admin')
+                            <form action="{{ route('lhp.destroy', $lhp->id) }}" method="POST" x-data
+                                @submit.prevent="Swal.fire({
+                                    title: 'Hapus LHP?',
+                                    text: 'Data LHP yang dihapus tidak dapat dikembalikan.',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#dc2626',
+                                    cancelButtonColor: '#94a3b8',
+                                    confirmButtonText: 'Ya, Hapus',
+                                    cancelButtonText: 'Batal',
+                                    reverseButtons: true
+                                }).then((result) => { if (result.isConfirmed) $el.submit() })">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all tooltip" title="Hapus LHP">
+                                    <x-lucide-trash-2 class="w-5 h-5" />
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

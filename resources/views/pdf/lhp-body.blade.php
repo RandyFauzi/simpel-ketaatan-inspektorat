@@ -107,10 +107,23 @@
                 Terhadap permasalahan yang ditemukan dalam audit, direkomendasikan kepada Kepala {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan agar:
                 <ol style="margin-top: 5px; padding-left: 20px; text-align: justify;">
                     @forelse($lhp->findings as $finding)
+                        @if(!empty(trim((string) $finding->rekomendasi_teks)))
+                            <li style="margin-bottom: 5px;">
+                                {!! $renderRichText($finding->rekomendasi_teks) !!}
+                            </li>
+                        @endif
                         @foreach($finding->recommendations as $rec)
-                            <li style="margin-bottom: 5px;">{{ $rec->uraian_rekomendasi }}
-                                @if($rec->nilai_rekomendasi > 0)
-                                senilai Rp{{ number_format($rec->nilai_rekomendasi, 2, ',', '.') }} @endif.</li>
+                            @php
+                                $uraianRaw = trim((string) ($rec->uraian_rekomendasi ?? ''));
+                                $uraianSingleDot = rtrim($uraianRaw, " \t\n\r\0\x0B.") . '.';
+                                $amountText = 'senilai Rp' . number_format((float) ($rec->nilai_rekomendasi ?? 0), 2, ',', '.');
+                                $hasAmountInText = stripos($uraianSingleDot, $amountText) !== false;
+
+                                if (($rec->nilai_rekomendasi ?? 0) > 0 && !$hasAmountInText) {
+                                    $uraianSingleDot = rtrim($uraianSingleDot, '.') . '. ' . $amountText . '.';
+                                }
+                            @endphp
+                            <li style="margin-bottom: 5px;">{{ $uraianSingleDot }}</li>
                         @endforeach
                     @empty
                         <li>Tidak terdapat rekomendasi yang perlu ditindaklanjuti (Nihil).</li>
@@ -317,7 +330,7 @@
                     Pembina Tingkat I (IV/b)<br>
                     NIP. 197312202008012010
                 </td>
-                <td width="50%" style="border: none; vertical-align: top; padding-left: 20px;">
+                <td width="50%" style="border: none; vertical-align: top; padding-left: 20px; line-height: 1.2;">
                     Tim Pemeriksa :<br><br>
                     @php
                         // Mengambil data tim_pemeriksa, fallback ke tembusan jika data lama masih ada
@@ -330,13 +343,15 @@
                             $timPemeriksaItems = array_values(array_filter($timPemeriksaItems, fn ($item) => is_string($item) && trim($item) !== ''));
                         }
                     @endphp
-                    @forelse($timPemeriksaItems as $idx => $item)
-                        {{ $idx + 1 }}. {{ $item }}<br><br>
-                    @empty
-                        1. ........................................<br><br>
-                        2. ........................................<br><br>
-                        3. ........................................
-                    @endforelse
+                    <div class="tim-pemeriksa">
+                        @forelse($timPemeriksaItems as $idx => $item)
+                            <p style="margin: 0 0 2px 0; line-height: 1.2;">{{ $idx + 1 }}. {!! strip_tags($item, '<b><i><strong><em><u><br>') !!}</p>
+                        @empty
+                            <p style="margin: 0; line-height: 1.2;">1. ........................................</p>
+                            <p style="margin: 0; line-height: 1.2;">2. ........................................</p>
+                            <p style="margin: 0; line-height: 1.2;">3. ........................................</p>
+                        @endforelse
+                    </div>
                 </td>
             </tr>
         </table>
@@ -411,7 +426,7 @@
             </tr>
         </table>
 
-        <div style="margin-top: 40px; font-size: 11pt; line-height: 1.4;">
+        <div style="margin-top: 40px; font-size: 11pt; line-height: 1.4; page-break-inside: avoid;">
             <b>TEMBUSAN,</b> Disampaikan kepada Yth:<br>
             @php
                 $tembusanSurat = $lhp->content->metadata_tambahan['tembusan'] ?? [];

@@ -80,6 +80,10 @@
             @endif
 
             @if(auth()->user()->role === 'auditor' && $lhp->status === 'draft')
+                <a href="{{ route('auditor.lhp.export', $lhp->id) }}" target="_blank"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-bold rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
+                    <x-lucide-file-text class="w-4 h-4" /> Review PDF
+                </a>
                 <form action="{{ route('auditor.lhp.submit-review', $lhp->id) }}" method="POST" x-data @submit.prevent="Swal.fire({
                     title: 'Ajukan ke Ketua Tim?',
                     text: 'Ajukan LHP ini untuk direviu oleh Ketua Tim? Pastikan seluruh data telah dikonfirmasi dan lengkap.',
@@ -98,7 +102,7 @@
                 </form>
             @endif
 
-            @if(in_array(auth()->user()->role, ['auditor', 'admin']) && $lhp->status === 'draft')
+            @if((in_array(auth()->user()->role, ['auditor', 'admin']) || (auth()->user()->role === 'ketua_tim' && auth()->user()->tim === $lhp->tim)) && $lhp->status === 'draft')
                 <a href="{{ route('auditor.lhp.create') }}?edit={{ $lhp->id }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 border border-blue-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-blue-700 transition-colors">
                     <x-lucide-edit class="w-4 h-4" /> Edit LHP
                 </a>
@@ -508,7 +512,7 @@
                             </h4>
                             <p class="text-[11px] text-indigo-600/70 mb-5 leading-relaxed font-medium">Berikan catatan khusus revisi atau teruskan LHP ini ke tahap berikutnya.</p>
                             
-                            <form action="{{ route('lhp.review.store', $lhp->id) }}" method="POST">
+                            <form action="{{ route('lhp.review.store', $lhp->id) }}" method="POST" x-data>
                                 @csrf
                                 <div class="mb-5">
                                     <label class="block text-xs font-bold text-indigo-900 mb-2">Catatan Reviu (Wajib jika dikembalikan)</label>
@@ -544,7 +548,29 @@
                                         }
                                     @endphp
 
-                                    <button type="submit" name="action" value="{{ $actionKembalikan }}" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 font-bold text-xs uppercase tracking-widest rounded-xl transition-colors">
+                                    <button type="button" @click="
+                                        const form = $el.closest('form');
+                                        const catatanEl = form.querySelector('textarea[name=\'catatan\']');
+                                        const catatan = (catatanEl?.value || '').trim();
+                                        if (!catatan) {
+                                            Swal.fire({
+                                                title: 'Catatan Reviu Wajib Diisi',
+                                                text: 'Isi Catatan Reviu terlebih dahulu sebelum mengembalikan LHP.',
+                                                icon: 'warning',
+                                                confirmButtonColor: '#f59e0b',
+                                                confirmButtonText: 'Siap, Saya Isi'
+                                            }).then(() => {
+                                                if (catatanEl) catatanEl.focus();
+                                            });
+                                            return;
+                                        }
+                                        let input = document.createElement('input');
+                                        input.type = 'hidden';
+                                        input.name = 'action';
+                                        input.value = '{{ $actionKembalikan }}';
+                                        form.appendChild(input);
+                                        form.submit();
+                                    " class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 font-bold text-xs uppercase tracking-widest rounded-xl transition-colors">
                                         <x-lucide-corner-down-left class="w-4 h-4" /> {{ $labelKembalikan }}
                                     </button>
                                     

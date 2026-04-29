@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Notifications\LhpWorkflowNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class ReviewController extends Controller
@@ -55,7 +56,7 @@ class ReviewController extends Controller
             $logAction = 'Mengesahkan dan Mempublikasikan LHP secara resmi';
         }
 
-        if ($isReturning && empty($request->catatan)) {
+        if ($isReturning && trim((string) $request->input('catatan', '')) === '') {
              return back()->withErrors(['catatan' => 'Catatan revisi wajib diisi jika mengembalikan LHP untuk perbaikan.'])->withInput();
         }
 
@@ -99,13 +100,23 @@ class ReviewController extends Controller
         });
 
         $lhp->refresh();
-        $this->dispatchWorkflowNotification($lhp, $role, $action, $isReturning, $currentUser->name);
+        try {
+            $this->dispatchWorkflowNotification($lhp, $role, $action, $isReturning, $currentUser->name);
+        } catch (\Throwable $e) {
+            // Notifikasi tidak boleh menggagalkan alur reviu utama.
+            Log::warning('Gagal mengirim notifikasi workflow LHP', [
+                'lhp_id' => $lhp->id,
+                'role' => $role,
+                'action' => $action,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         $message = !$isReturning 
             ? 'LHP telah berhasil disetujui dan diteruskan/dipublikasikan.'
             : 'LHP telah dikembalikan dengan catatan revisi.';
 
-        return redirect()->route('lhp.index')->with('success', $message);
+        return redirect()->route('lhp.show', $lhp->id)->with('success', $message);
     }
 
     private function dispatchWorkflowNotification(Lhp $lhp, string $reviewerRole, string $action, bool $isReturning, string $reviewerName): void

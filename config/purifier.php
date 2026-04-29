@@ -32,8 +32,9 @@ return [
         ],
         'audit_wysiwyg' => [
             'HTML.Doctype'             => 'HTML 4.01 Transitional',
-            'HTML.Allowed'             => 'b,strong,i,em,u,ol,ul,li,p,br,span,div',
-            'CSS.AllowedProperties'    => 'text-align,padding-left',
+            'HTML.Allowed'             => 'b,strong,i,em,u,ol,ul,li,p,br,span,div,table[border|cellpadding|cellspacing|width],thead,tbody,tr,th[colspan|rowspan|width],td[colspan|rowspan|width]',
+            // Sengaja dikunci: tidak mengizinkan font-size/font-family dari editor agar konsisten dengan CSS PDF.
+            'CSS.AllowedProperties'    => 'text-align,padding-left,border,border-collapse,width',
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty'   => true,
             'Attr.EnableID'            => false,

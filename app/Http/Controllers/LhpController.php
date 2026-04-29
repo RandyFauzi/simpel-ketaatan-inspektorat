@@ -14,10 +14,22 @@ use Illuminate\View\View;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use setasign\Fpdi\Fpdi;
 
 class LhpController extends Controller
 {
+    private function isPimpinanRole(?string $role): bool
+    {
+        if (!$role) {
+            return false;
+        }
+
+        return $role === 'admin'
+            || $role === 'inspektur_daerah'
+            || Str::startsWith($role, 'inspektur_pembantu');
+    }
+
     /**
      * Daftar Seluruh LHP (Direktori)
      */
@@ -37,14 +49,27 @@ class LhpController extends Controller
             });
         }
 
-        // Role-Based Access Control (RBAC) Filter
         $user = auth()->user();
-        if (in_array($user->role, ['auditor', 'ketua_tim'])) {
-            $query->where(function ($q) use ($user) {
-                // Fallback legacy: tampilkan data yang belum memiliki tim (NULL) agar tidak "hilang" di daftar.
-                $q->where('tim', $user->tim)
-                  ->orWhereNull('tim');
-            });
+
+        // Role-based visibility per requirement terbaru klien.
+        if ($user->role === 'admin') {
+            // Admin: lihat semua status, tanpa filter tambahan.
+        } elseif ($user->role === 'inspektur_daerah') {
+            // Inspektur Daerah: jangan tampilkan draft.
+            $query->where('status', '!=', 'draft');
+        } elseif (Str::startsWith((string) $user->role, 'inspektur_pembantu')) {
+            // Irban: tampilkan semua termasuk draft.
+            // Catatan: filter wilayah irban belum diterapkan karena belum ada mapping wilayah khusus di tabel LHP.
+        } elseif ($user->role === 'ketua_tim') {
+            // Ketua Tim: semua status termasuk draft, dibatasi per tim.
+            $query->where('tim', $user->tim);
+        } elseif ($user->role === 'auditor') {
+            // Auditor: semua status termasuk draft, dibatasi pembuat dokumen.
+            // Mapping requirement "user_id = auth()->id()" ke kolom existing "created_by".
+            $query->where('created_by', $user->id);
+        } else {
+            // Role lain (mis. skpd): hanya dokumen final/non-draft.
+            $query->where('status', '!=', 'draft');
         }
 
         $lhps = $query->paginate(10)->withQueryString();
@@ -57,13 +82,24 @@ class LhpController extends Controller
      */
     public function create(Request $request): View
     {
-        $opds = Opd::orderBy('nama_opd')->get();
+        $user = auth()->user();
 
         $lhp = null;
         if ($request->filled('edit')) {
             $lhp = Lhp::with(['content', 'findings.recommendations'])->find($request->edit);
+            if (!$lhp) {
+                abort(404, 'LHP tidak ditemukan.');
+            }
+            if (!$this->isPimpinanRole($user->role) && $user->tim !== $lhp->tim) {
+                abort(403, 'Akses Ditolak. Anda hanya dapat mengedit LHP milik tim Anda sendiri.');
+            }
+        } else {
+            if (!in_array($user->role, ['admin', 'auditor'])) {
+                abort(403, 'Akses Ditolak. Anda tidak berwenang membuat LHP baru.');
+            }
         }
 
+        $opds = Opd::orderBy('nama_opd')->get();
         return view('lhp-form', compact('opds', 'lhp'));
     }
 
@@ -72,7 +108,20 @@ class LhpController extends Controller
      */
     public function store(Request $request, LhpService $service)
     {
+        $user = auth()->user();
         $editId = $request->input('edit_id');
+
+        if ($editId) {
+            $existingLhp = Lhp::findOrFail($editId);
+            if (!$this->isPimpinanRole($user->role) && $user->tim !== $existingLhp->tim) {
+                abort(403, 'Akses Ditolak. Anda hanya dapat mengedit LHP milik tim Anda sendiri.');
+            }
+        } else {
+            if (!in_array($user->role, ['admin', 'auditor'])) {
+                abort(403, 'Akses Ditolak. Anda tidak berwenang membuat LHP baru.');
+            }
+        }
+
         $isDraft = $request->boolean('is_draft', true);
 
         $rules = [
@@ -156,6 +205,34 @@ class LhpController extends Controller
             ->with('success', $message);
     }
 
+    public function autosave(Request $request, LhpService $service)
+    {
+        $user = auth()->user();
+        $editId = $request->input('edit_id');
+
+        if ($editId) {
+            $existingLhp = Lhp::findOrFail($editId);
+            if (!$this->isPimpinanRole($user->role) && $user->tim !== $existingLhp->tim) {
+                abort(403, 'Akses Ditolak. Anda hanya dapat mengedit LHP milik tim Anda sendiri.');
+            }
+        } elseif (!in_array($user->role, ['admin', 'auditor'])) {
+            abort(403, 'Akses Ditolak. Anda tidak berwenang membuat LHP baru.');
+        }
+
+        $payload = $request->all();
+        $payload['is_draft'] = true;
+
+        $lhp = $editId
+            ? $service->updateFullLhp($editId, $payload)
+            : $service->createFullLhp($payload);
+
+        return response()->json([
+            'ok' => true,
+            'lhp_id' => $lhp->id,
+            'updated_at' => now()->toIso8601String(),
+        ]);
+    }
+
     /**
      * Ajukan LHP ke Atasan untuk di Reviu.
      */
@@ -228,15 +305,14 @@ class LhpController extends Controller
     public function preview(Lhp $lhp): View
     {
         $user = auth()->user();
-        $pimpinanRoles = ['admin', 'inspektur_daerah', 'inspektur_pembantu', 'inspektur_pembantu_1'];
-        if (!in_array($user->role, $pimpinanRoles) && $user->tim !== $lhp->tim) {
+        if (!$this->isPimpinanRole($user->role) && $user->tim !== $lhp->tim) {
             abort(403, 'Akses Ditolak. Anda hanya dapat melihat pratinjau LHP milik tim Anda sendiri.');
         }
 
         $lhp->load([
             'opd',
             'content',
-            'findings.recommendations',
+            'findings.recommendations.followUpEvidences.user',
             'reviews.reviewer'
         ]);
 
@@ -285,8 +361,7 @@ class LhpController extends Controller
     public function export(Lhp $lhp)
     {
         $user = auth()->user();
-        $pimpinanRoles = ['admin', 'inspektur_daerah', 'inspektur_pembantu', 'inspektur_pembantu_1'];
-        if (!in_array($user->role, $pimpinanRoles) && $user->tim !== $lhp->tim) {
+        if (!$this->isPimpinanRole($user->role) && $user->tim !== $lhp->tim) {
             abort(403, 'Akses Ditolak. Anda hanya dapat mengekspor LHP milik tim Anda sendiri.');
         }
 
@@ -347,6 +422,16 @@ class LhpController extends Controller
         return response($mergedBinary, 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="' . $safeName . '"');
+    }
+
+    public function destroy(Lhp $lhp)
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403, 'Akses ditolak.');
+
+        $lhp->delete();
+
+        return redirect()->route('lhp.index')
+            ->with('success', 'LHP berhasil dihapus.');
     }
 
     private function buildKopSuratHtml(): string

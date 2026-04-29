@@ -26,6 +26,7 @@ class Finding extends Model
      */
     protected $fillable = [
         'lhp_id',
+        'parent_id',
         'kode_temuan',
         'uraian_temuan',
         'kondisi',
@@ -63,6 +64,43 @@ class Finding extends Model
     public function recommendations(): HasMany
     {
         return $this->hasMany(Recommendation::class, 'finding_id', 'id');
+    }
+
+    /**
+     * Parent temuan (untuk temuan beranak).
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id', 'id');
+    }
+
+    /**
+     * Sub-temuan dari temuan ini.
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id', 'id')
+            ->orderBy('kode_temuan')
+            ->orderBy('id');
+    }
+
+    /**
+     * Generate kode sub-temuan berikutnya dari parent saat ini.
+     * Contoh: parent "T-01" => child pertama "T-01.1".
+     */
+    public function nextSubCode(): string
+    {
+        $baseCode = trim((string) $this->kode_temuan);
+        $maxSuffix = 0;
+
+        foreach ($this->children()->pluck('kode_temuan') as $childCode) {
+            $childCode = trim((string) $childCode);
+            if (preg_match('/^' . preg_quote($baseCode, '/') . '\.(\d+)$/', $childCode, $matches) === 1) {
+                $maxSuffix = max($maxSuffix, (int) $matches[1]);
+            }
+        }
+
+        return $baseCode . '.' . ($maxSuffix + 1);
     }
 
     /**

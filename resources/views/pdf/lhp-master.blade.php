@@ -45,6 +45,18 @@
         .page-break {
             page-break-before: always;
         }
+
+        /* 4. MERAPIKAN SPASI TIM PEMERIKSA */
+        .tim-pemeriksa {
+            line-height: 1.2;
+        }
+        .tim-pemeriksa p {
+            margin: 0; 
+            padding: 0;
+        }
+        .tim-pemeriksa li {
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 
@@ -101,10 +113,13 @@
                 // Atur offset: Halaman fisik 2 (Bagian Pertama) akan dicetak sebagai angka 1
                 $pageNumberOffset = -1; 
                 $showPageNumberFrom = 2; // Mulai memunculkan angka di halaman fisik ke-2
+                $hideLastPages = 2; // Sembunyikan nomor pada 2 halaman paling akhir (Surat Penyampaian/Tembusan)
 
                 $displayPage = $PAGE_NUM + $pageNumberOffset;
 
-                if ($PAGE_NUM >= $showPageNumberFrom) {
+                // Tampilkan nomor halaman HANYA JIKA halaman saat ini >= halaman mulai
+                // DAN bukan merupakan halaman-halaman akhir (Surat Penyampaian/Tembusan)
+                if ($PAGE_NUM >= $showPageNumberFrom && $PAGE_NUM <= ($PAGE_COUNT - $hideLastPages)) {
                     $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
                     $size = 12;
                     $text = $displayPage; 

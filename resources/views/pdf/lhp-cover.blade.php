@@ -18,13 +18,9 @@
 </head>
 
 <body>
-    {{-- ══════════════════════════════════════════════════ --}}
-    {{-- HALAMAN SAMPUL (COVER DEPAN) --}}
-    {{-- ══════════════════════════════════════════════════ --}}
     <div
         style="position: relative; height: 920px; box-sizing: border-box; text-align: center; font-family: 'Times New Roman', Times, serif; padding: 40px;">
 
-        {{-- LAYER BORDER (BACKGROUND) --}}
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border: 1px solid #3b5998; z-index: -2;">
         </div>
         <div
@@ -44,33 +40,47 @@
             style="position: absolute; bottom: -2px; right: -2px; width: 8px; height: 8px; border: 1px solid #3b5998; background-color: white; z-index: -1;">
         </div>
 
-        {{-- KONTEN UTAMA COVER --}}
         <div style="position: relative; z-index: 10;">
             {!! $kopSurat !!}
 
-            {{-- JUDUL COVER --}}
+            @php
+                $opdName = trim((string) ($lhp->opd->nama_opd ?? 'OPD'));
+                $judulRaw = trim((string) ($lhp->judul ?? ''));
+                $judulNormalized = preg_replace('/\s+/u', ' ', $judulRaw);
+                $opdPattern = '/' . preg_quote($opdName, '/') . '/iu';
+
+                $judulUntukCover = preg_replace('/\s+PADA\s+' . preg_quote($opdName, '/') . '\s*$/iu', '', $judulNormalized);
+                if ($judulUntukCover === null || trim($judulUntukCover) === '') {
+                    $judulUntukCover = $judulNormalized;
+                }
+
+                if (preg_match($opdPattern, $judulUntukCover) === 1 && mb_strtoupper($judulUntukCover) === mb_strtoupper($opdName)) {
+                    $judulUntukCover = '';
+                }
+            @endphp
+
             <h2
                 style="font-size: 16pt; font-weight: bold; margin-top: 80px; margin-bottom: 10px; line-height: 1.6; text-transform: uppercase;">
                 LAPORAN HASIL AUDIT KETAATAN<br>
-                ATAS {{ $lhp->judul }}<br>
-                PADA {{ $lhp->opd->nama_opd ?? 'OPD' }}<br>
+                @if(trim($judulUntukCover) !== '')
+                    ATAS {{ $judulUntukCover }}<br>
+                @endif
+                PADA {{ $opdName }}<br>
                 KABUPATEN BARITO SELATAN
             </h2>
 
-            {{-- ORNAMEN 3 GARIS VERTIKAL --}}
             <div style="margin-top: 50px; margin-bottom: 40px; text-align: center;">
                 <div
-                    style="display: inline-block; width: 2px; height: 220px; background-color: black; margin: 0 15px; vertical-align: middle;">
+                    style="display: inline-block; width: 2px; height: 150px; background-color: black; margin: 0 15px; vertical-align: middle;">
                 </div>
                 <div
-                    style="display: inline-block; width: 2px; height: 280px; background-color: black; margin: 0 15px; vertical-align: middle;">
+                    style="display: inline-block; width: 2px; height: 190px; background-color: black; margin: 0 15px; vertical-align: middle;">
                 </div>
                 <div
-                    style="display: inline-block; width: 2px; height: 220px; background-color: black; margin: 0 15px; vertical-align: middle;">
+                    style="display: inline-block; width: 2px; height: 150px; background-color: black; margin: 0 15px; vertical-align: middle;">
                 </div>
             </div>
 
-            {{-- ATRIBUT BAWAH COVER --}}
             <div style="position: absolute; top: 730px; left: 0; right: 0; width: 100%; text-align: center;">
                 <table
                     style="margin: 0 auto; margin-bottom: 40px; font-size: 12pt; border: none; text-align: left; width: 350px;">
