@@ -62,6 +62,35 @@
             line-height: 1.35;
         }
 
+        .content-block {
+            text-align: justify;
+            line-height: 1.35;
+        }
+
+        .content-block > p,
+        .content-block > div {
+            text-indent: 36px;
+            margin-top: 0;
+            margin-bottom: 4px;
+        }
+
+        .content-block table p,
+        .content-block table div,
+        .content-block .pdf-list p,
+        .content-block .pdf-list div {
+            text-indent: 0 !important;
+        }
+
+        .point-content {
+            margin-left: 24px;
+            margin-bottom: 5px;
+        }
+
+        .subpoint-content {
+            margin-left: 46px;
+            margin-bottom: 4px;
+        }
+
         .layout-table,
         .report-point,
         .report-subpoint {
@@ -81,10 +110,12 @@
 
         .report-point {
             margin-bottom: 5px;
+            page-break-after: avoid;
         }
 
         .report-subpoint {
             margin-bottom: 4px;
+            page-break-after: avoid;
         }
 
         .report-number {

@@ -315,14 +315,12 @@
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="report-number" valign="top">1.</td>
-                <td valign="top">
-                    Dasar Audit<br>
-                    <div class="editor-content" style="margin-top: 2px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['dasar_audit'] ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Dasar Audit</td>
             </tr>
         </table>
+        <div class="editor-content content-block point-content">
+            {!! $renderRichText($lhp->content->metadata_tambahan['dasar_audit'] ?? null) !!}
+        </div>
 
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
             <tr>
@@ -335,158 +333,150 @@
             <tr>
                 <td class="report-sub-indent"></td>
                 <td class="report-sub-number" valign="top">a.</td>
-                <td valign="top">
-                    Tujuan Audit<br>
-                    <div class="editor-content" style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['tujuan_audit'] ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Tujuan Audit</td>
             </tr>
         </table>
+        <div class="editor-content content-block subpoint-content">
+            {!! $renderRichText($lhp->content->metadata_tambahan['tujuan_audit'] ?? null) !!}
+        </div>
 
         <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="report-sub-indent"></td>
                 <td class="report-sub-number" valign="top">b.</td>
-                <td valign="top">
-                    Metodologi Audit<br>
-                    <div class="editor-content" style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['metodologi_audit'] ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Metodologi Audit</td>
             </tr>
         </table>
+        <div class="editor-content content-block subpoint-content">
+            {!! $renderRichText($lhp->content->metadata_tambahan['metodologi_audit'] ?? null) !!}
+        </div>
 
         <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="report-sub-indent"></td>
                 <td class="report-sub-number" valign="top">c.</td>
-                <td valign="top">
-                    Batasan Tanggung Jawab<br>
-                    <div class="editor-content" style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['batasan_tanggung_jawab'] ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Batasan Tanggung Jawab</td>
             </tr>
         </table>
-
-        <div style="text-align: justify; margin-bottom: 8px;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 2px; border: none;">
-                <tr>
-                    <td width="25px" valign="top" style="border: none;">3.</td>
-                    <td valign="top" style="border: none;">Sasaran dan Ruang Lingkup Audit</td>
-                </tr>
-            </table>
-
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
-                <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">a.</td>
-                    <td valign="top" style="border: none;">
-                        Sasaran Audit<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['sasaran_audit'] ?? null) !!}</div>
-                    </td>
-                </tr>
-            </table>
-
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
-                <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">b.</td>
-                    <td valign="top" style="border: none;">
-                        Ruang Lingkup Audit<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['ruang_lingkup'] ?? null) !!}</div>
-                    </td>
-                </tr>
-            </table>
-
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
-                <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">c.</td>
-                    <td valign="top" style="border: none;">
-                        Periode Audit<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['periode_audit'] ?? null) !!}</div>
-                    </td>
-                </tr>
-            </table>
+        <div class="editor-content content-block subpoint-content">
+            {!! $renderRichText($lhp->content->metadata_tambahan['batasan_tanggung_jawab'] ?? null) !!}
         </div>
 
         <div style="text-align: justify; margin-bottom: 8px;">
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 2px; border: none;">
+            <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td width="25px" valign="top" style="border: none;">4.</td>
-                    <td valign="top" style="border: none;">Informasi Auditi</td>
+                    <td class="report-number" valign="top">3.</td>
+                    <td valign="top">Sasaran dan Ruang Lingkup Audit</td>
                 </tr>
             </table>
 
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">a.</td>
-                    <td valign="top" style="border: none;">
-                        Tujuan Program<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_tujuan_program'] ?? null) !!}</div>
-                    </td>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">a.</td>
+                    <td valign="top">Sasaran Audit</td>
+                </tr>
+            </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['sasaran_audit'] ?? null) !!}
+            </div>
+
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">b.</td>
+                    <td valign="top">Ruang Lingkup Audit</td>
+                </tr>
+            </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['ruang_lingkup'] ?? null) !!}
+            </div>
+
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">c.</td>
+                    <td valign="top">Periode Audit</td>
+                </tr>
+            </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['periode_audit'] ?? null) !!}
+            </div>
+        </div>
+
+        <div style="text-align: justify; margin-bottom: 8px;">
+            <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="report-number" valign="top">4.</td>
+                    <td valign="top">Informasi Auditi</td>
                 </tr>
             </table>
 
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">b.</td>
-                    <td valign="top" style="border: none;">
-                        Kegiatan Program<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_kegiatan_program'] ?? null) !!}</div>
-                    </td>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">a.</td>
+                    <td valign="top">Tujuan Program</td>
                 </tr>
             </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['info_tujuan_program'] ?? null) !!}
+            </div>
 
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">c.</td>
-                    <td valign="top" style="border: none;">
-                        Lokasi Program dan Alokasi Dana<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_lokasi_dana'] ?? null) !!}</div>
-                    </td>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">b.</td>
+                    <td valign="top">Kegiatan Program</td>
                 </tr>
             </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['info_kegiatan_program'] ?? null) !!}
+            </div>
 
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">d.</td>
-                    <td valign="top" style="border: none;">
-                        Sumber Dana<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_sumber_dana'] ?? null) !!}</div>
-                    </td>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">c.</td>
+                    <td valign="top">Lokasi Program dan Alokasi Dana</td>
                 </tr>
             </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['info_lokasi_dana'] ?? null) !!}
+            </div>
 
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td width="25px" style="border: none;"></td>
-                    <td width="25px" valign="top" style="border: none;">e.</td>
-                    <td valign="top" style="border: none;">
-                        Struktur Organisasi<br>
-                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_struktur_org'] ?? null) !!}</div>
-                    </td>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">d.</td>
+                    <td valign="top">Sumber Dana</td>
                 </tr>
             </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['info_sumber_dana'] ?? null) !!}
+            </div>
+
+            <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="report-sub-indent"></td>
+                    <td class="report-sub-number" valign="top">e.</td>
+                    <td valign="top">Struktur Organisasi</td>
+                </tr>
+            </table>
+            <div class="editor-content content-block subpoint-content">
+                {!! $renderRichText($lhp->content->metadata_tambahan['info_struktur_org'] ?? null) !!}
+            </div>
         </div>
 
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 12px;">
             <tr>
                 <td class="report-number" valign="top">5.</td>
-                <td valign="top">
-                    Penilaian atas Sistem Pengendalian Intern<br>
-                    <div class="editor-content" style="margin-top: 2px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['penilaian_spi'] ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Penilaian atas Sistem Pengendalian Intern</td>
             </tr>
         </table>
+        <div class="editor-content content-block point-content" style="margin-bottom: 12px;">
+            {!! $renderRichText($lhp->content->metadata_tambahan['penilaian_spi'] ?? null) !!}
+        </div>
 
         {{-- Page Break untuk memisahkan BAB II ke halaman baru --}}
         <div class="page-break"></div>
@@ -498,68 +488,58 @@
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
             <tr>
                 <td class="report-number" valign="top">1.</td>
-                <td valign="top">
-                    Penilaian atas Ketaatan terhadap Ketentuan (area, proses, sistem, fungsi, program/kegiatan)<br>
-                    <div class="editor-content" style="margin-top: 2px;">
-                        {!! $renderRichText($lhp->penilaian_ketaatan ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Penilaian atas Ketaatan terhadap Ketentuan (area, proses, sistem, fungsi, program/kegiatan)</td>
             </tr>
         </table>
+        <div class="editor-content content-block point-content">
+            {!! $renderRichText($lhp->penilaian_ketaatan ?? null) !!}
+        </div>
 
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="report-number" valign="top">2.</td>
-                <td valign="top">
-                    Kesesuaian Output dengan Tujuan Program<br>
-                    <div class="editor-content" style="margin-top: 2px;">
-                        {!! $renderRichText($lhp->kesesuaian_output ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Kesesuaian Output dengan Tujuan Program</td>
             </tr>
         </table>
+        <div class="editor-content content-block point-content">
+            {!! $renderRichText($lhp->kesesuaian_output ?? null) !!}
+        </div>
 
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="report-number" valign="top">3.</td>
-                <td valign="top">
-                    Temuan Hasil Audit
-                    @forelse($lhp->findings as $finding)
-                        <div class="editor-content" style="margin-top: 2px; margin-bottom: 6px;">
-                            {!! $renderRichText($finding->uraian_temuan, '................................................................') !!}
-                        </div>
-                    @empty
-                        <div style="text-align: justify; margin-bottom: 6px; margin-top: 4px;">
-                            ................................................................
-                        </div>
-                    @endforelse
-                </td>
+                <td valign="top">Temuan Hasil Audit</td>
             </tr>
         </table>
+        @forelse($lhp->findings as $finding)
+            <div class="editor-content content-block point-content" style="margin-bottom: 6px;">
+                {!! $renderRichText($finding->uraian_temuan, '................................................................') !!}
+            </div>
+        @empty
+            <div class="point-content" style="text-align: justify; margin-bottom: 6px;">
+                ................................................................
+            </div>
+        @endforelse
 
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="report-number" valign="top">4.</td>
-                <td valign="top">
-                    Hal-hal Penting Lainnya yang Perlu Diperhatikan<br>
-                    <div class="editor-content" style="margin-top: 2px;">
-                        {!! $renderRichText($lhp->hal_penting ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Hal-hal Penting Lainnya yang Perlu Diperhatikan</td>
             </tr>
         </table>
+        <div class="editor-content content-block point-content">
+            {!! $renderRichText($lhp->hal_penting ?? null) !!}
+        </div>
 
         <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="report-number" valign="top">5.</td>
-                <td valign="top">
-                    Tindak Lanjut Temuan Audit Tahun Sebelumnya<br>
-                    <div class="editor-content" style="margin-top: 2px;">
-                        {!! $renderRichText($lhp->tindak_lanjut ?? null) !!}
-                    </div>
-                </td>
+                <td valign="top">Tindak Lanjut Temuan Audit Tahun Sebelumnya</td>
             </tr>
         </table>
+        <div class="editor-content content-block point-content">
+            {!! $renderRichText($lhp->tindak_lanjut ?? null) !!}
+        </div>
         <div style="text-align: center; font-weight: bold; margin-top: 15px;">
             BAB III<br>PENUTUP
         </div>
