@@ -12,6 +12,21 @@
             $plainText = trim(str_replace("\u{00A0}", ' ', $plainText));
             return $plainText !== '' ? $sanitized : $fallback;
         };
+
+        $judulAuditRaw = trim((string) ($lhp->judul ?? ''));
+        $judulAuditClean = preg_replace('/\bpada\s+bidang\b/iu', '', $judulAuditRaw);
+        $judulAuditClean = preg_replace('/\s*Tahun\s+\d{4}\s*$/iu', '', (string) $judulAuditClean);
+        $judulAuditClean = trim(preg_replace('/\s{2,}/u', ' ', (string) $judulAuditClean));
+        if ($judulAuditClean === '') {
+            $judulAuditClean = $judulAuditRaw;
+        }
+
+        $opdNameRaw = trim((string) ($lhp->opd->nama_opd ?? 'OPD'));
+        $opdNameClean = preg_replace('/\s*Tahun\s+\d{4}\s*$/iu', '', $opdNameRaw);
+        $opdNameClean = trim((string) $opdNameClean);
+        if ($opdNameClean === '') {
+            $opdNameClean = $opdNameRaw;
+        }
     @endphp
 
     {{-- ══════════════════════════════════════════════════ --}}
@@ -42,9 +57,8 @@
                             <td style="vertical-align: top;">Perihal</td>
                             <td style="vertical-align: top;">:</td>
                             <td style="vertical-align: top; text-align: justify;">
-                                Laporan Hasil Audit Ketaatan<br>
-                                pada Bidang {{ $lhp->judul }}<br>
-                                {{ $lhp->opd->nama_opd ?? 'OPD' }} Tahun {{ $lhp->tahun_anggaran }}
+                                Laporan Hasil Audit Ketaatan {{ $judulAuditClean }}<br>
+                                Pada {{ $opdNameClean }}
                             </td>
                         </tr>
                     </table>
@@ -62,7 +76,7 @@
         </div>
 
         <p style="text-indent: 45px; text-align: justify; margin-bottom: 15px;">
-            Kami telah melakukan Audit Ketaatan pada Bidang {{ $lhp->judul }}. Audit dilaksanakan sesuai dengan Standar Audit yang ditetapkan oleh Dewan Pengurus Nasional Asosiasi Auditor Intern Pemerintah Indonesia (AAIPI) dan kami yakin bahwa audit tersebut dapat memberikan dasar yang memadai untuk menyimpulkan ketaatan terhadap peraturan perundang-undangan, memberikan saran perbaikan yang diperlukan untuk perbaikan pengelolaan risiko dan proses pengendalian intern serta tata kelola pemerintahan.
+            Kami telah melakukan Audit Ketaatan {{ $judulAuditClean }}. Audit dilaksanakan sesuai dengan Standar Audit yang ditetapkan oleh Dewan Pengurus Nasional Asosiasi Auditor Intern Pemerintah Indonesia (AAIPI) dan kami yakin bahwa audit tersebut dapat memberikan dasar yang memadai untuk menyimpulkan ketaatan terhadap peraturan perundang-undangan, memberikan saran perbaikan yang diperlukan untuk perbaikan pengelolaan risiko dan proses pengendalian intern serta tata kelola pemerintahan.
         </p>
 
         <p style="margin-bottom: 10px;">Hasil audit disajikan dengan pokok-pokok bahasan sebagai berikut:</p>
@@ -95,40 +109,12 @@
         <div>
             <b>A. SIMPULAN (Ringkasan Hasil Audit)</b>
             <div style="text-align: justify; margin-left: 20px; margin-bottom: 15px;">
-                @if(isset($lhp->content->metadata_tambahan['simpulan_audit']))
-                    {!! $renderRichText($lhp->content->metadata_tambahan['simpulan_audit']) !!}
-                @else
-                    Berdasarkan hasil pengujian atas {{ $lhp->judul }} pada {{ $lhp->opd->nama_opd ?? 'OPD' }} Tahun Anggaran {{ $lhp->tahun_anggaran }}, kami menyimpulkan bahwa secara keseluruhan tingkat ketaatan terhadap ketentuan yang ditetapkan dan pencapaian sasaran sistem pengendalian intern masih belum sepenuhnya memadai.
-                @endif
+                {!! $renderRichText($lhp->simpulan_manual ?? null) !!}
             </div>
             
             <b>B. REKOMENDASI</b>
             <div style="text-align: justify; margin-left: 20px; margin-bottom: 30px;">
-                Terhadap permasalahan yang ditemukan dalam audit, direkomendasikan kepada Kepala {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan agar:
-                <ol style="margin-top: 5px; padding-left: 20px; text-align: justify;">
-                    @forelse($lhp->findings as $finding)
-                        @if(!empty(trim((string) $finding->rekomendasi_teks)))
-                            <li style="margin-bottom: 5px;">
-                                {!! $renderRichText($finding->rekomendasi_teks) !!}
-                            </li>
-                        @endif
-                        @foreach($finding->recommendations as $rec)
-                            @php
-                                $uraianRaw = trim((string) ($rec->uraian_rekomendasi ?? ''));
-                                $uraianSingleDot = rtrim($uraianRaw, " \t\n\r\0\x0B.") . '.';
-                                $amountText = 'senilai Rp' . number_format((float) ($rec->nilai_rekomendasi ?? 0), 2, ',', '.');
-                                $hasAmountInText = stripos($uraianSingleDot, $amountText) !== false;
-
-                                if (($rec->nilai_rekomendasi ?? 0) > 0 && !$hasAmountInText) {
-                                    $uraianSingleDot = rtrim($uraianSingleDot, '.') . '. ' . $amountText . '.';
-                                }
-                            @endphp
-                            <li style="margin-bottom: 5px;">{{ $uraianSingleDot }}</li>
-                        @endforeach
-                    @empty
-                        <li>Tidak terdapat rekomendasi yang perlu ditindaklanjuti (Nihil).</li>
-                    @endforelse
-                </ol>
+                {!! $renderRichText($lhp->rekomendasi_manual ?? null) !!}
             </div>
         </div>
 
@@ -315,7 +301,7 @@
         </div>
 
         <div style="text-align: justify; margin-bottom: 30px; text-indent: 45px;">
-            Demikian Laporan Hasil Audit Ketaatan ini disusun berdasarkan data dan fakta yang diperoleh pada saat Tim Pemeriksa melaksanakan pemeriksaan di lapangan, dengan berpedoman pada Norma Pemeriksaan yang berlaku bagi Aparat Pengawas Internal Pemerintah (APIP) di lingkungan Kementerian Dalam Negeri dan Sumpah Jabatan.
+            {!! $renderRichText($lhp->penutup_manual ?? null) !!}
         </div>
 
         {{-- TABLE TANDA TANGAN (KIRI: INSPEKTUR, KANAN: TIM PEMERIKSA) --}}
@@ -330,7 +316,7 @@
                     Pembina Tingkat I (IV/b)<br>
                     NIP. 197312202008012010
                 </td>
-                <td width="50%" style="border: none; vertical-align: top; padding-left: 20px; line-height: 1.2;">
+                <td width="55%" style="border: none; vertical-align: top; padding-left: 12px; line-height: 1.2;">
                     Tim Pemeriksa :<br><br>
                     @php
                         // Mengambil data tim_pemeriksa, fallback ke tembusan jika data lama masih ada
@@ -345,7 +331,7 @@
                     @endphp
                     <div class="tim-pemeriksa">
                         @forelse($timPemeriksaItems as $idx => $item)
-                            <p style="margin: 0 0 2px 0; line-height: 1.2;">{{ $idx + 1 }}. {!! strip_tags($item, '<b><i><strong><em><u><br>') !!}</p>
+                            <p style="margin: 0 0 2px 0; line-height: 1.2;"><span class="tim-pemeriksa-name">{{ $idx + 1 }}. {!! strip_tags($item, '<b><i><strong><em><u>') !!}</span></p>
                         @empty
                             <p style="margin: 0; line-height: 1.2;">1. ........................................</p>
                             <p style="margin: 0; line-height: 1.2;">2. ........................................</p>
@@ -384,9 +370,8 @@
                             <td style="vertical-align: top;">Perihal</td>
                             <td style="vertical-align: top;">:</td>
                             <td style="vertical-align: top; text-align: justify;">
-                                Laporan Hasil Audit Ketaatan<br>
-                                Atas {{ $lhp->judul }}<br>
-                                Pada {{ $lhp->opd->nama_opd ?? 'OPD' }}<br>
+                                Laporan Hasil Audit Ketaatan {{ $judulAuditClean }}<br>
+                                Pada {{ $opdNameClean }}<br>
                                 Kabupaten Barito Selatan
                             </td>
                         </tr>

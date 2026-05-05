@@ -2,6 +2,9 @@
 @section('title', 'Detail LHP - ' . $lhp->nomor_lhp)
 
 @section('content')
+@php
+    $isKetuaLike = in_array(auth()->user()->role, ['ketua_tim', 'skpd', 'pengendali_teknis'], true);
+@endphp
 
 {{-- ═══ DYNAMIC STATUS BANNER ═══ --}}
 @if($lhp->status === 'draft')
@@ -97,7 +100,7 @@
                 </form>
             @endif
 
-            @if((in_array(auth()->user()->role, ['auditor', 'admin']) || (auth()->user()->role === 'ketua_tim' && auth()->user()->tim === $lhp->tim)) && $lhp->status === 'draft')
+            @if((in_array(auth()->user()->role, ['auditor', 'admin']) || ($isKetuaLike && auth()->user()->tim === $lhp->tim)) && $lhp->status === 'draft')
                 <a href="{{ route('auditor.lhp.create') }}?edit={{ $lhp->id }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 border border-blue-600 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-blue-700 transition-colors">
                     <x-lucide-edit class="w-4 h-4" /> Edit LHP
                 </a>
@@ -117,16 +120,6 @@
                 x-bind:class="activeTab === 'info' ? 'border-b-2 border-blue-600 text-blue-700 font-bold bg-white/80 shadow-sm rounded-t-xl' : 'text-slate-500 font-medium hover:text-slate-700 hover:bg-slate-100/50 rounded-t-xl'" 
                 class="px-6 py-4 text-sm whitespace-nowrap transition-all outline-none">
             <x-lucide-book-open class="w-4 h-4 inline-block mr-1.5 mb-0.5" x-bind:class="activeTab === 'info' ? 'text-blue-600' : ''" /> Bab Pendahuluan
-        </button>
-        <button @click="activeTab = 'temuan'" 
-                x-bind:class="activeTab === 'temuan' ? 'border-b-2 border-blue-600 text-blue-700 font-bold bg-white/80 shadow-sm rounded-t-xl' : 'text-slate-500 font-medium hover:text-slate-700 hover:bg-slate-100/50 rounded-t-xl'" 
-                class="px-6 py-4 text-sm whitespace-nowrap transition-all outline-none">
-            <x-lucide-alert-circle class="w-4 h-4 inline-block mr-1.5 mb-0.5" x-bind:class="activeTab === 'temuan' ? 'text-blue-600' : ''" /> Registrasi Temuan ({{ $lhp->findings->count() }})
-        </button>
-        <button @click="activeTab = 'rekomendasi'" 
-                x-bind:class="activeTab === 'rekomendasi' ? 'border-b-2 border-blue-600 text-blue-700 font-bold bg-white/80 shadow-sm rounded-t-xl' : 'text-slate-500 font-medium hover:text-slate-700 hover:bg-slate-100/50 rounded-t-xl'" 
-                class="px-6 py-4 text-sm whitespace-nowrap transition-all outline-none">
-            <x-lucide-list-checks class="w-4 h-4 inline-block mr-1.5 mb-0.5" x-bind:class="activeTab === 'rekomendasi' ? 'text-blue-600' : ''" /> Matriks Rekomendasi
         </button>
 
         <button @click="activeTab = 'reviu'" 
@@ -247,7 +240,7 @@
         </div>
 
         <!-- Tab 2: Bab II - Hasil Audit (Daftar Temuan) -->
-        <div x-show="activeTab === 'temuan'" x-transition.opacity.duration.300ms style="display: none;">
+        <div x-show="false" x-transition.opacity.duration.300ms style="display: none;">
             <div class="flex items-center justify-between mb-8">
                 <div>
                     <h3 class="text-xl font-bold text-slate-900 underline decoration-blue-500 decoration-4 underline-offset-8">Daftar Temuan Hasil Audit</h3>
@@ -315,7 +308,7 @@
         </div>
 
         <!-- Tab 3: Bagian Pertama - Matriks Rekomendasi (Tindak Lanjut) -->
-        <div x-show="activeTab === 'rekomendasi'" x-transition.opacity.duration.300ms style="display: none;" class="space-y-6">
+        <div x-show="false" x-transition.opacity.duration.300ms style="display: none;" class="space-y-6">
             <div class="flex items-center justify-between mb-2">
                 <div>
                     <h3 class="text-xl font-bold text-slate-900">Matriks Pemantauan Rekomendasi</h3>
@@ -494,7 +487,7 @@
                 </div>
 
                 <!-- Form Aksi Reviu -->
-                @if( (auth()->user()->role === 'ketua_tim' && $lhp->status === 'review_ketua') || 
+                @if( ($isKetuaLike && $lhp->status === 'review_ketua') || 
                      (str_starts_with((string) auth()->user()->role, 'inspektur_pembantu') && $lhp->status === 'review_irban') )
                 <div class="w-full lg:w-96 shrink-0">
                     <div class="sticky top-24">
@@ -519,7 +512,7 @@
                                         $labelTeruskan = '';
                                         $confirmTitle = '';
                                         
-                                        if ($role === 'ketua_tim') {
+                                        if (in_array($role, ['ketua_tim', 'skpd', 'pengendali_teknis'], true)) {
                                             $actionKembalikan = 'draft';
                                             $labelKembalikan = 'Kembalikan (Draft)';
                                             $actionTeruskan = 'review_irban';

@@ -31,9 +31,6 @@
         <a href="{{ route('lhp.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl {{ isActive('lhp.*') }}">
             <x-lucide-file-text class="w-5 h-5" /> Daftar LHP
         </a>
-        <a href="{{ route('temuan.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl {{ isActive('temuan.*') }}">
-            <x-lucide-alert-circle class="w-5 h-5" /> Temuan Audit
-        </a>
         @if(in_array(auth()->user()->role, ['admin', 'auditor']))
         <a href="{{ route('auditor.lhp.create') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl {{ isActive('auditor.lhp.create') }}">
             <x-lucide-file-plus class="w-5 h-5" /> Buat LHP Baru
@@ -50,9 +47,6 @@
         <!-- SKPD Menus -->
         <a href="{{ route('lhp.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl {{ isActive('lhp.*') }}">
             <x-lucide-file-text class="w-5 h-5" /> Daftar LHP
-        </a>
-        <a href="{{ route('temuan.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl {{ isActive('temuan.*') }}">
-            <x-lucide-alert-circle class="w-5 h-5" /> Temuan Audit
         </a>
         <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl {{ isActive('skpd.followup.*') }}">
             <x-lucide-inbox class="w-5 h-5" /> Tindak Lanjut

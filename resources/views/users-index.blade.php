@@ -70,6 +70,7 @@
                                 'ketua_tim' => 'bg-blue-50 text-blue-700 border-blue-200',
                                 'auditor' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
                                 'skpd' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                'pengendali_teknis' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                             ];
                             $c = $roleColors[$u->role] ?? 'bg-slate-100 text-slate-700 border-slate-200';
                             $icons = [
@@ -79,15 +80,19 @@
                                 'ketua_tim' => 'users',
                                 'auditor' => 'briefcase',
                                 'skpd' => 'building-2',
+                                'pengendali_teknis' => 'building-2',
                             ];
+                            $roleLabel = $u->role === 'skpd'
+                                ? 'pengendali teknis'
+                                : str_replace('_', ' ', $u->role);
                         @endphp
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg border {{ $c }}">
                             <x-dynamic-component :component="'lucide-' . ($icons[$u->role] ?? 'user')" class="w-3 h-3" />
-                            {{ str_replace('_', ' ', $u->role) }}
+                            {{ $roleLabel }}
                         </span>
                     </td>
                     <td class="px-6 py-5">
-                        @if(in_array($u->role, ['ketua_tim', 'auditor']))
+                        @if(in_array($u->role, ['ketua_tim', 'auditor', 'skpd', 'pengendali_teknis']))
                             <span class="text-xs text-slate-600 font-semibold uppercase">{{ str_replace('_', ' ', $u->tim ?? 'Belum dipetakan') }}</span>
                         @else
                             <span class="text-slate-400 text-xs">-</span>

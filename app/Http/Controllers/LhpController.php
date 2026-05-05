@@ -31,12 +31,19 @@ class LhpController extends Controller
             || Str::startsWith($role, 'inspektur_pembantu');
     }
 
+    private function isKetuaLikeRole(?string $role): bool
+    {
+        return in_array((string) $role, ['ketua_tim', 'skpd', 'pengendali_teknis'], true);
+    }
+
     /**
      * Daftar Seluruh LHP (Direktori)
      */
     public function index(Request $request): View
     {
-        $query = Lhp::with('opd')->latest('tahun_anggaran')->latest('created_at');
+        $query = Lhp::with(['opd', 'findings:id,lhp_id,kerugian_negara,kerugian_daerah'])
+            ->latest('tahun_anggaran')
+            ->latest('created_at');
 
         // Fitur Pencarian Cerdas
         if ($request->filled('search')) {
@@ -61,7 +68,7 @@ class LhpController extends Controller
         } elseif (Str::startsWith((string) $user->role, 'inspektur_pembantu')) {
             // Irban: tampilkan semua termasuk draft.
             // Catatan: filter wilayah irban belum diterapkan karena belum ada mapping wilayah khusus di tabel LHP.
-        } elseif ($user->role === 'ketua_tim') {
+        } elseif ($this->isKetuaLikeRole($user->role)) {
             // Ketua Tim: semua status termasuk draft, dibatasi per tim.
             $query->where('tim', $user->tim);
         } elseif ($user->role === 'auditor') {
@@ -73,7 +80,8 @@ class LhpController extends Controller
             $query->where('status', '!=', 'draft');
         }
 
-        $lhps = $query->paginate(10)->withQueryString();
+        $lhps = $query->paginate(10);
+        $lhps->appends($request->query());
 
         return view('lhp-index', compact('lhps'));
     }
@@ -151,6 +159,9 @@ class LhpController extends Controller
             'info_sumber_dana' => 'nullable|string',
             'info_struktur_org' => 'nullable|string',
             'penilaian_spi'  => 'nullable|string',
+            'simpulan_manual' => 'nullable|string',
+            'rekomendasi_manual' => 'nullable|string',
+            'penutup_manual' => 'nullable|string',
             'simpulan_audit' => 'nullable|string',
             'penilaian_ketaatan' => 'nullable|string',
             'kesesuaian_output' => 'nullable|string',
@@ -160,6 +171,11 @@ class LhpController extends Controller
             'metadata_tambahan.tim_pemeriksa.*' => 'nullable|string|max:255',
             'metadata_tambahan.tembusan' => 'nullable|array',
             'metadata_tambahan.tembusan.*' => 'nullable|string|max:255',
+            'findings' => 'nullable|array',
+            'findings.*.kode_temuan' => 'nullable|string|max:100',
+            'findings.*.uraian_temuan_rekomendasi' => 'nullable|string',
+            'findings.*.kerugian_negara' => 'nullable|numeric|min:0',
+            'findings.*.kerugian_daerah' => 'nullable|numeric|min:0',
             // Backward compatibility untuk payload lama.
             'tembusan'       => 'nullable|array',
             'tembusan.*'     => 'nullable|string|max:255',
@@ -170,8 +186,8 @@ class LhpController extends Controller
                 'dasar_audit' => 'required|string',
                 'tujuan_audit' => 'required|string',
                 'sasaran_audit' => 'required|string',
-                'penilaian_ketaatan' => 'required|string',
-                'simpulan_audit' => 'required|string',
+                'simpulan_manual' => 'required|string',
+                'rekomendasi_manual' => 'required|string',
             ]);
         }
 
@@ -254,7 +270,7 @@ class LhpController extends Controller
         ]);
 
         $targetKetuaTim = User::query()
-            ->where('role', 'ketua_tim')
+            ->whereIn('role', ['ketua_tim', 'skpd', 'pengendali_teknis'])
             ->when($lhp->tim, fn ($q) => $q->where('tim', $lhp->tim))
             ->get();
 
@@ -282,8 +298,6 @@ class LhpController extends Controller
             'dasar_audit',
             'tujuan_audit',
             'sasaran_audit',
-            'penilaian_ketaatan',
-            'simpulan_audit',
         ];
 
         $hasCoreIdentity = !empty($lhp->nomor_lhp)
@@ -295,9 +309,12 @@ class LhpController extends Controller
         $hasCoreNarrative = collect($requiredMetaFields)
             ->every(fn (string $key) => !empty(trim((string) ($meta[$key] ?? ''))));
 
+        $hasManualSection = !empty(trim((string) ($lhp->simpulan_manual ?? '')))
+            && !empty(trim((string) ($lhp->rekomendasi_manual ?? '')));
+
         $hasFindings = $lhp->findings->count() > 0;
 
-        return $hasCoreIdentity && $hasCoreNarrative && $hasFindings;
+        return $hasCoreIdentity && $hasCoreNarrative && $hasManualSection && $hasFindings;
     }
 
     /**

@@ -104,7 +104,7 @@
     <!-- ======================= -->
     <!-- VIEW AUDITOR / ADMIN -->
     <!-- ======================= -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Card 1: Total LHP (Blue) -->
         <x-ui.card class="animate-fade-in-up delay-100 flex flex-col justify-between border-l-4 border-l-blue-500">
             <div class="flex items-center justify-between mb-4">
@@ -117,34 +117,8 @@
             </div>
         </x-ui.card>
 
-        <!-- Card 2: Total Temuan (Amber) -->
-        <x-ui.card class="animate-fade-in-up delay-200 flex flex-col justify-between border-l-4 border-l-amber-500">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-medium text-slate-500">Register Temuan</h3>
-                <div class="p-2 bg-amber-50 text-amber-600 rounded-lg"><x-lucide-alert-circle class="w-5 h-5" /></div>
-            </div>
-            <div>
-                <p class="text-3xl font-bold text-slate-800">{{ number_format($totalTemuan) }}</p>
-                <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">Penyimpangan tercatat</p>
-            </div>
-        </x-ui.card>
-
-        <!-- Card 3: Total Kerugian (Red) -->
-        <x-ui.card class="animate-fade-in-up delay-300 flex flex-col justify-between border-l-4 border-l-red-500">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-medium text-slate-500">Total Nilai Kerugian</h3>
-                <div class="p-2 bg-red-50 text-red-600 rounded-lg"><x-lucide-wallet class="w-5 h-5" /></div>
-            </div>
-            <div>
-                <p class="text-xl sm:text-2xl font-bold text-red-600 truncate font-mono" title="Rp {{ number_format($totalKerugian, 0, ',', '.') }}">
-                    {{ 'Rp ' . number_format($totalKerugian / 1000000, 1) }}M
-                </p>
-                <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">Agregat potensi negara/daerah</p>
-            </div>
-        </x-ui.card>
-        
-        <!-- Card 4: LHP Selesai (Produktivitas Publikasi) -->
-        <x-ui.card class="animate-fade-in-up delay-400 flex flex-col justify-between bg-gradient-to-br from-blue-600 to-blue-700 !border-none text-white overflow-hidden relative shadow-md">
+        <!-- Card 2: LHP Selesai (Produktivitas Publikasi) -->
+        <x-ui.card class="animate-fade-in-up delay-300 flex flex-col justify-between bg-gradient-to-br from-blue-600 to-blue-700 !border-none text-white overflow-hidden relative shadow-md">
             <div class="absolute -right-4 -top-4 opacity-10">
                 <x-lucide-badge-check class="w-24 h-24" />
             </div>

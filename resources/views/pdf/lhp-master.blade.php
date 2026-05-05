@@ -21,6 +21,20 @@
             line-height: 1.5;
         }
 
+        /* Kompres spasi konten PDF, khususnya BAB I */
+        main p,
+        main ol,
+        main ul,
+        main li {
+            line-height: 1.28;
+            margin-top: 0;
+            margin-bottom: 3px;
+        }
+        main ol,
+        main ul {
+            padding-left: 18px;
+        }
+
         /* 3. HEADER (KOP SURAT) GLOBAL */
         header {
             position: fixed;
@@ -53,6 +67,9 @@
         .tim-pemeriksa p {
             margin: 0; 
             padding: 0;
+        }
+        .tim-pemeriksa .tim-pemeriksa-name {
+            white-space: nowrap;
         }
         .tim-pemeriksa li {
             margin-bottom: 4px;

@@ -60,7 +60,7 @@
             @endphp
 
             <h2
-                style="font-size: 16pt; font-weight: bold; margin-top: 80px; margin-bottom: 10px; line-height: 1.6; text-transform: uppercase;">
+                style="font-size: 16pt; font-weight: bold; margin-top: 62px; margin-bottom: 6px; line-height: 1.35; text-transform: uppercase;">
                 LAPORAN HASIL AUDIT KETAATAN<br>
                 @if(trim($judulUntukCover) !== '')
                     ATAS {{ $judulUntukCover }}<br>

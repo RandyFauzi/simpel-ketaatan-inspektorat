@@ -14,6 +14,10 @@ use Illuminate\Support\Str;
 
 class ReviewController extends Controller
 {
+    private function isKetuaLike(string $role): bool
+    {
+        return in_array($role, ['ketua_tim', 'skpd', 'pengendali_teknis'], true);
+    }
     /**
      * Menyimpan catatan reviu baru dan mengungkit status LHP.
      */
@@ -24,7 +28,7 @@ class ReviewController extends Controller
         $isIrban = Str::startsWith((string) $role, 'inspektur_pembantu');
         
         $allowedActions = [];
-        if ($role === 'ketua_tim') {
+        if ($this->isKetuaLike($role)) {
             $allowedActions = ['draft', 'review_irban'];
         } elseif ($isIrban) {
             // Irban menjadi level final approval.
@@ -40,10 +44,10 @@ class ReviewController extends Controller
         
         $isReturning = false;
         $logAction = '';
-        if ($role === 'ketua_tim' && $action === 'draft') {
+        if ($this->isKetuaLike($role) && $action === 'draft') {
             $isReturning = true;
             $logAction = 'Mengembalikan LHP ke Auditor dengan catatan revisi';
-        } elseif ($role === 'ketua_tim' && $action === 'review_irban') {
+        } elseif ($this->isKetuaLike($role) && $action === 'review_irban') {
             $logAction = 'Menyetujui dokumen dan meneruskannya ke Inspektur Pembantu I';
         } elseif ($isIrban && $action === 'review_ketua') {
             $isReturning = true;
@@ -131,7 +135,7 @@ class ReviewController extends Controller
             return;
         }
 
-        if ($reviewerRole === 'ketua_tim' && $action === 'review_irban') {
+        if ($this->isKetuaLike($reviewerRole) && $action === 'review_irban') {
             $targets = User::query()
                 ->where(function ($q) {
                     $q->where('role', 'inspektur_pembantu')
@@ -157,7 +161,7 @@ class ReviewController extends Controller
                           ->orWhere('role', 'admin');
                     })
                         ->orWhere(function ($q) use ($lhp) {
-                            $q->whereIn('role', ['auditor', 'ketua_tim']);
+                            $q->whereIn('role', ['auditor', 'ketua_tim', 'skpd', 'pengendali_teknis']);
                             if (!empty($lhp->tim)) {
                                 $q->where('tim', $lhp->tim);
                             }

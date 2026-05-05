@@ -256,11 +256,11 @@
                     </div>
                 </div>
             </div>
-            <div x-show="step === 2" x-transition.opacity.duration.300ms>
+            <div x-show="step === 3" x-transition.opacity.duration.300ms>
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/70">
                         <h2 class="font-bold text-slate-700 flex items-center gap-2"><x-lucide-book-open-text
-                                class="w-5 h-5 text-blue-600" />Step 2 - Informasi Umum (BAB I)</h2>
+                                class="w-5 h-5 text-blue-600" />Step 3 - Bagian Kedua (BAB I Informasi Umum)</h2>
                         <p class="text-xs text-slate-500 mt-1">Gunakan accordion agar layar tidak panjang.</p>
                     </div>
                     <div class="p-6 space-y-4">
@@ -391,44 +391,23 @@
                 </div>
             </div>
 
-            <div x-show="step === 3" x-transition.opacity.duration.300ms>
+            <div x-show="step === 2" x-transition.opacity.duration.300ms>
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/70">
                         <h2 class="font-bold text-slate-700 flex items-center gap-2"><x-lucide-scroll-text
-                                class="w-5 h-5 text-indigo-600" />Step 3 - Uraian Hasil dan Simpulan</h2>
+                                class="w-5 h-5 text-indigo-600" />Step 2 - Bagian Pertama (Simpulan & Rekomendasi)</h2>
                     </div>
                     <div class="p-6 space-y-6">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                            <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Penilaian Ketaatan</label>
-                                <p class="text-xs text-slate-500 mb-2">Uraian kepatuhan terhadap ketentuan.</p><input
-                                    id="penilaian_ketaatan" type="hidden" name="penilaian_ketaatan"
-                                    x-model="form.penilaian_ketaatan"><trix-editor input="penilaian_ketaatan"
-                                    class="bg-white border border-slate-200 rounded-xl"></trix-editor>
-                            </div>
-                            <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Kesesuaian Output</label>
-                                <p class="text-xs text-slate-500 mb-2">Bandingkan output aktual dengan target.</p><input
-                                    id="kesesuaian_output" type="hidden" name="kesesuaian_output"
-                                    x-model="form.kesesuaian_output"><trix-editor input="kesesuaian_output"
-                                    class="bg-white border border-slate-200 rounded-xl"></trix-editor>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                            <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Hal-hal Penting
-                                    Lainnya</label><input id="hal_penting_lainnya" type="hidden" name="hal_penting_lainnya"
-                                    x-model="form.hal_penting_lainnya"><trix-editor input="hal_penting_lainnya"
-                                    class="bg-white border border-slate-200 rounded-xl"></trix-editor></div>
-                            <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Tindak Lanjut
-                                    Sebelumnya</label><input id="tindak_lanjut_sebelumnya" type="hidden"
-                                    name="tindak_lanjut_sebelumnya" x-model="form.tindak_lanjut_sebelumnya"><trix-editor
-                                    input="tindak_lanjut_sebelumnya"
-                                    class="bg-white border border-slate-200 rounded-xl"></trix-editor></div>
+                        <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40">
+                            <label class="block text-sm font-bold text-slate-800 mb-1.5">Simpulan (Manual)</label>
+                            <input id="simpulan_manual" type="hidden" name="simpulan_manual" x-model="form.simpulan_manual">
+                            <trix-editor input="simpulan_manual"
+                                class="bg-white border border-slate-200 rounded-xl"></trix-editor>
                         </div>
                         <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40">
-                            <label class="block text-sm font-bold text-slate-800 mb-1.5">Simpulan Audit (BAGIAN PERTAMA
-                                PDF)</label>
-                            <p class="text-xs text-slate-500 mb-3">Gunakan list bertingkat bila diperlukan.</p>
-                            <input id="simpulan_audit" type="hidden" name="simpulan_audit" x-model="form.simpulan_audit">
-                            <trix-editor input="simpulan_audit"
+                            <label class="block text-sm font-bold text-slate-800 mb-1.5">Rekomendasi (Manual)</label>
+                            <input id="rekomendasi_manual" type="hidden" name="rekomendasi_manual" x-model="form.rekomendasi_manual">
+                            <trix-editor input="rekomendasi_manual"
                                 class="bg-white border border-slate-200 rounded-xl"></trix-editor>
                         </div>
                     </div>
@@ -438,7 +417,7 @@
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between gap-3">
                         <h2 class="font-bold text-slate-700 flex items-center gap-2"><x-lucide-layout-list
-                                class="w-5 h-5 text-amber-600" />Step 4 - Kertas Kerja Temuan dan Rekomendasi</h2>
+                                class="w-5 h-5 text-amber-600" />Step 4 - Uraian Hasil Audit (BAB II) & Penutup</h2>
                         <button type="button" @click="addFinding()"
                             class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg"><x-lucide-plus
                                 class="w-4 h-4" /> Tambah Temuan</button>
@@ -470,23 +449,16 @@
                                             x-model="finding.kode_temuan" :placeholder="'T-'+(fIdx+1)"
                                             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"></div>
                                     <div class="lg:col-span-3">
-                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Uraian Temuan <span
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Uraian Temuan & Rekomendasi <span
                                                 class="text-red-500">*</span></label>
-                                        <p class="text-xs text-slate-500 mb-2">Tuliskan uraian detail temuan. Area ini
-                                            diperluas agar nyaman mengetik narasi panjang.</p>
-                                        <input type="hidden" :id="'finding_'+fIdx+'_uraian_temuan'"
-                                            :name="'findings['+fIdx+'][uraian_temuan]'" x-model="finding.uraian_temuan">
-                                        <trix-editor :input="'finding_'+fIdx+'_uraian_temuan'"
-                                            class="bg-white border border-slate-200 rounded-xl trix-findings-large"></trix-editor>
+                                        <textarea
+                                            :id="'finding_'+fIdx+'_uraian_temuan_rekomendasi'"
+                                            :name="'findings['+fIdx+'][uraian_temuan_rekomendasi]'"
+                                            class="suneditor-finding w-full border border-slate-200 rounded-xl text-sm"
+                                            x-model="finding.uraian_temuan_rekomendasi"
+                                            x-init="initSunEditorForFinding($el, fIdx)"
+                                        ></textarea>
                                     </div>
-                                </div>
-                                <div class="space-y-4">
-                                    <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Rekomendasi
-                                            Teks</label><input type="hidden" :id="'finding_'+fIdx+'_rekomendasi_teks'"
-                                            :name="'findings['+fIdx+'][rekomendasi_teks]'"
-                                            x-model="finding.rekomendasi_teks"><trix-editor
-                                            :input="'finding_'+fIdx+'_rekomendasi_teks'"
-                                            class="bg-white border border-slate-200 rounded-xl"></trix-editor></div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                     <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Kerugian Negara
@@ -500,54 +472,6 @@
                                             class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono">
                                     </div>
                                 </div>
-                                <div class="mt-5 border-t border-dashed border-slate-200 pt-4">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <p class="text-xs font-bold text-slate-700 uppercase">Rekomendasi Turunan</p>
-                                        <button type="button" @click="addRecommendation(fIdx)"
-                                            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg"><x-lucide-plus
-                                                class="w-3 h-3" /> Tambah Rekomendasi</button>
-                                    </div>
-                                    <template x-if="!finding.recommendations || finding.recommendations.length === 0">
-                                        <p class="text-xs text-slate-400">Belum ada rekomendasi untuk temuan ini.</p>
-                                    </template>
-                                    <div class="space-y-3">
-                                        <template x-for="(rec, rIdx) in finding.recommendations"
-                                            :key="'rec-'+fIdx+'-'+rIdx">
-                                            <div class="border border-slate-200 rounded-xl p-3 bg-white">
-                                                <div class="flex justify-end mb-2"><button type="button"
-                                                        @click="removeRecommendation(fIdx, rIdx)"
-                                                        class="text-xs font-bold text-red-600 hover:text-red-700">Hapus</button>
-                                                </div>
-                                                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                                                    <div><label
-                                                            class="block text-[11px] font-bold text-slate-700 mb-1">Kode</label><input
-                                                            type="text"
-                                                            :name="'findings['+fIdx+'][recommendations]['+rIdx+'][kode_rekomendasi]'"
-                                                            x-model="rec.kode_rekomendasi"
-                                                            :placeholder="'R-'+(fIdx+1)+'.'+(rIdx+1)"
-                                                            class="w-full px-2.5 py-2 border border-slate-200 rounded-lg text-xs">
-                                                    </div>
-                                                    <div class="md:col-span-2"><label
-                                                            class="block text-[11px] font-bold text-slate-700 mb-1">Uraian
-                                                            Rekomendasi <span class="text-red-500">*</span></label><input
-                                                            type="text"
-                                                            :name="'findings['+fIdx+'][recommendations]['+rIdx+'][uraian_rekomendasi]'"
-                                                            x-model="rec.uraian_rekomendasi"
-                                                            class="w-full px-2.5 py-2 border border-slate-200 rounded-lg text-xs">
-                                                    </div>
-                                                    <div><label
-                                                            class="block text-[11px] font-bold text-slate-700 mb-1">Nilai
-                                                            (Rp) <span class="text-red-500">*</span></label><input
-                                                            type="number"
-                                                            :name="'findings['+fIdx+'][recommendations]['+rIdx+'][nilai_rekomendasi]'"
-                                                            x-model.number="rec.nilai_rekomendasi" min="0"
-                                                            class="w-full px-2.5 py-2 border border-slate-200 rounded-lg text-xs font-mono">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
                             </div>
                         </template>
                         <div x-show="form.findings.length > 0"
@@ -555,6 +479,12 @@
                             <span class="text-xs font-bold text-slate-500 uppercase">Total Estimasi Kerugian</span>
                             <span class="text-lg font-black text-red-600 font-mono"
                                 x-text="'Rp ' + totalKerugian().toLocaleString('id-ID')"></span>
+                        </div>
+                        <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40 mt-6">
+                            <label class="block text-sm font-bold text-slate-800 mb-1.5">Penutup (Manual)</label>
+                            <input id="penutup_manual" type="hidden" name="penutup_manual" x-model="form.penutup_manual">
+                            <trix-editor input="penutup_manual"
+                                class="bg-white border border-slate-200 rounded-xl"></trix-editor>
                         </div>
                     </div>
                 </div>
@@ -587,6 +517,7 @@
         const CSRF_TOKEN = @json(csrf_token());
         document.addEventListener('DOMContentLoaded', function () {
             const initializedEditors = new Map();
+            const findingEditors = new Map();
 
             const getEditorMinHeight = (trixNode) => {
                 if (trixNode.classList.contains('trix-findings-large')) return '250px';
@@ -687,9 +618,67 @@
                 document.querySelectorAll('trix-editor[input]').forEach(initSunEditorFromTrix);
             };
 
-            bootstrapAllEditors();
+            const ensureFindingTextareaEditor = (textarea) => {
+                if (!textarea || textarea.dataset.sunEditorInitialized === '1') return;
 
-            const observer = new MutationObserver(() => bootstrapAllEditors());
+                if (!textarea.id) {
+                    textarea.id = 'finding_editor_' + Math.random().toString(36).slice(2);
+                }
+
+                const editor = SUNEDITOR.create(textarea, {
+                    minHeight: '250px',
+                    width: '100%',
+                    resizingBar: true,
+                    defaultStyle: 'font-family: Times New Roman; font-size: 12pt; line-height: 1.6;',
+                    formats: ['p', 'h1', 'h2', 'h3', 'blockquote'],
+                    paragraphStyles: ['spaced', 'bordered'],
+                    listStyles: ['disc', 'circle', 'square', 'decimal', 'lower-alpha', 'upper-alpha', 'lower-roman', 'upper-roman'],
+                    buttonList: [
+                        ['undo', 'redo'],
+                        ['font', 'fontSize', 'formatBlock'],
+                        ['bold', 'underline', 'italic', 'strike', 'subscript', 'superscript', 'removeFormat'],
+                        ['fontColor', 'hiliteColor'],
+                        ['outdent', 'indent'],
+                        ['align', 'horizontalRule', 'list', 'lineHeight', 'paragraphStyle'],
+                        ['table', 'link'],
+                        ['fullScreen', 'codeView']
+                    ]
+                });
+
+                const sync = () => {
+                    const contents = editor.getContents();
+                    textarea.value = contents;
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    textarea.dispatchEvent(new Event('change', { bubbles: true }));
+                };
+
+                editor.onChange = sync;
+                editor.onBlur = sync;
+                sync();
+
+                textarea.dataset.sunEditorInitialized = '1';
+                findingEditors.set(textarea.id, { editor, textarea });
+            };
+
+            const bootstrapFindingEditors = () => {
+                document.querySelectorAll('textarea.suneditor-finding').forEach(ensureFindingTextareaEditor);
+            };
+
+            window.initFindingSunEditor = function (el) {
+                ensureFindingTextareaEditor(el);
+            };
+
+            window.bootstrapFindingSunEditors = function () {
+                bootstrapFindingEditors();
+            };
+
+            bootstrapAllEditors();
+            bootstrapFindingEditors();
+
+            const observer = new MutationObserver(() => {
+                bootstrapAllEditors();
+                bootstrapFindingEditors();
+            });
             observer.observe(document.body, { childList: true, subtree: true });
 
             const form = document.getElementById('lhp-main-form');
@@ -699,6 +688,12 @@
                         if (ctx.editor && typeof ctx.editor.getContents === 'function') {
                             ctx.hiddenInput.value = ctx.editor.getContents();
                             ctx.hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    });
+                    findingEditors.forEach((ctx) => {
+                        if (ctx.editor && typeof ctx.editor.getContents === 'function') {
+                            ctx.textarea.value = ctx.editor.getContents();
+                            ctx.textarea.dispatchEvent(new Event('input', { bubbles: true }));
                         }
                     });
                 });
@@ -711,8 +706,10 @@
             const editMeta = editContent && editContent.metadata_tambahan ? editContent.metadata_tambahan : null;
             const isEdit = !!editData;
             const existingFindings = isEdit && editData.findings ? editData.findings.map(f => ({
-                kode_temuan: f.kode_temuan || '', uraian_temuan: f.uraian_temuan || '', rekomendasi_teks: f.rekomendasi_teks || '', kerugian_negara: f.kerugian_negara || 0, kerugian_daerah: f.kerugian_daerah || 0,
-                recommendations: (f.recommendations || []).map(r => ({ kode_rekomendasi: r.kode_rekomendasi || '', uraian_rekomendasi: r.uraian_rekomendasi || '', nilai_rekomendasi: r.nilai_rekomendasi || 0 }))
+                kode_temuan: f.kode_temuan || '',
+                uraian_temuan_rekomendasi: f.uraian_temuan || '',
+                kerugian_negara: f.kerugian_negara || 0,
+                kerugian_daerah: f.kerugian_daerah || 0
             })) : [];
 
             const storageKey = isEdit ? ('lhp_draft_edit_' + editData.id) : 'lhp_draft_new';
@@ -725,10 +722,10 @@
             return {
                 step: 1,
                 steps: [
-                    { title: 'Identitas', desc: 'Cover dan surat pengantar' },
-                    { title: 'Informasi Umum', desc: 'BAB I dengan accordion' },
-                    { title: 'Uraian & Simpulan', desc: 'BAB II + BAGIAN PERTAMA' },
-                    { title: 'Temuan', desc: 'Kertas kerja dan rekomendasi' }
+                    { title: 'Identitas', desc: 'Cover & Surat Pengantar' },
+                    { title: 'Bagian Pertama (Simpulan & Rekomendasi)', desc: 'Input manual' },
+                    { title: 'Bagian Kedua (BAB I Informasi Umum)', desc: 'Informasi umum audit' },
+                    { title: 'Uraian Hasil Audit (BAB II) & Penutup', desc: 'Temuan dan penutup' }
                 ],
                 openAccordions: { p1: true, p2: false, p3: false, p4: false },
                 validationError: '',
@@ -780,7 +777,9 @@
                     kesesuaian_output: isEdit && editMeta ? (editMeta.kesesuaian_output || '') : '',
                     hal_penting_lainnya: isEdit && editMeta ? (editMeta.hal_penting_lainnya || '') : '',
                     tindak_lanjut_sebelumnya: isEdit && editMeta ? (editMeta.tindak_lanjut_sebelumnya || '') : '',
-                    simpulan_audit: isEdit && editMeta ? (editMeta.simpulan_audit || '') : '',
+                    simpulan_manual: isEdit ? (editData.simpulan_manual || '') : '',
+                    rekomendasi_manual: isEdit ? (editData.rekomendasi_manual || '') : '',
+                    penutup_manual: isEdit ? (editData.penutup_manual || '') : '',
                     bab_2_hasil_audit: isEdit && editContent ? (editContent.bab_2_hasil_audit || '') : '',
                     bab_3_penutup: isEdit && editContent ? (editContent.bab_3_penutup || '') : '',
                     findings: isEdit ? existingFindings : []
@@ -810,7 +809,7 @@
                 validateStep4() {
                     if (this.form.findings.length === 0) { this.validationError = 'Tambahkan minimal 1 temuan pada step 4.'; return false; }
                     for (let i = 0; i < this.form.findings.length; i++) {
-                        if (!this.form.findings[i].uraian_temuan.trim()) { this.validationError = 'Uraian temuan ke-' + (i + 1) + ' masih kosong.'; return false; }
+                        if (!this.form.findings[i].uraian_temuan_rekomendasi.trim()) { this.validationError = 'Uraian temuan & rekomendasi ke-' + (i + 1) + ' masih kosong.'; return false; }
                     }
                     return true;
                 },
@@ -827,10 +826,22 @@
                     if (this.form.tembusan.length <= 1) return;
                     this.form.tembusan.splice(idx, 1);
                 },
-                addFinding() { this.form.findings.push({ kode_temuan: '', uraian_temuan: '', rekomendasi_teks: '', kerugian_negara: 0, kerugian_daerah: 0, recommendations: [] }); },
+                initSunEditorForFinding(el) {
+                    this.$nextTick(() => {
+                        if (window.initFindingSunEditor) {
+                            window.initFindingSunEditor(el);
+                        }
+                    });
+                },
+                addFinding() {
+                    this.form.findings.push({ kode_temuan: '', uraian_temuan_rekomendasi: '', kerugian_negara: 0, kerugian_daerah: 0 });
+                    this.$nextTick(() => {
+                        if (window.bootstrapFindingSunEditors) {
+                            window.bootstrapFindingSunEditors();
+                        }
+                    });
+                },
                 removeFinding(idx) { this.form.findings.splice(idx, 1); },
-                addRecommendation(fIdx) { if (!this.form.findings[fIdx].recommendations) this.form.findings[fIdx].recommendations = []; this.form.findings[fIdx].recommendations.push({ kode_rekomendasi: '', uraian_rekomendasi: '', nilai_rekomendasi: 0 }); },
-                removeRecommendation(fIdx, rIdx) { this.form.findings[fIdx].recommendations.splice(rIdx, 1); },
                 totalKerugian() { return this.form.findings.reduce((sum, f) => sum + (parseFloat(f.kerugian_negara) || 0) + (parseFloat(f.kerugian_daerah) || 0), 0); },
                 queueAutosave() {
                     if (this.autosaveTimer) clearTimeout(this.autosaveTimer);

@@ -36,6 +36,9 @@ class LhpService
         'kesesuaian_output',
         'hal_penting_lainnya',
         'tindak_lanjut_sebelumnya',
+        'simpulan_manual',
+        'rekomendasi_manual',
+        'penutup_manual',
         'bab_1_info_umum',
         'bab_2_hasil_audit',
         'bab_3_penutup',
@@ -58,6 +61,9 @@ class LhpService
                 'judul'           => $data['judul'],
                 'tahun_anggaran'  => $data['tahun_anggaran'],
                 'opd_id'          => $data['opd_id'],
+                'simpulan_manual' => $data['simpulan_manual'] ?? null,
+                'rekomendasi_manual' => $data['rekomendasi_manual'] ?? null,
+                'penutup_manual' => $data['penutup_manual'] ?? null,
                 'created_by'      => auth()->id(),
                 'status'          => 'draft',
                 'tim'             => auth()->user() ? auth()->user()->tim : null,
@@ -108,16 +114,19 @@ class LhpService
 
                 foreach ($data['findings'] as $fIndex => $findingData) {
                     $findingId = (string) str()->uuid();
+                    $uraianTemuanRekomendasi = $this->sanitizeRichTextValue(
+                        $findingData['uraian_temuan_rekomendasi'] ?? $findingData['uraian_temuan'] ?? ''
+                    );
                     $findingsBatch[] = [
                         'id'              => $findingId,
                         'lhp_id'          => $lhp->id,
                         'kode_temuan'     => $findingData['kode_temuan'] ?: 'T-' . ($fIndex + 1),
-                        'uraian_temuan'   => $this->sanitizeRichTextValue($findingData['uraian_temuan'] ?? ''),
+                        'uraian_temuan'   => $uraianTemuanRekomendasi,
                         'kondisi'         => $findingData['kondisi'] ?? null,
                         'kriteria'        => $findingData['kriteria'] ?? null,
                         'sebab'           => $findingData['sebab'] ?? null,
                         'akibat'          => $findingData['akibat'] ?? null,
-                        'rekomendasi_teks'=> $this->sanitizeRichTextValue($findingData['rekomendasi_teks'] ?? null),
+                        'rekomendasi_teks'=> null,
                         'kerugian_negara' => (float) ($findingData['kerugian_negara'] ?? 0),
                         'kerugian_daerah' => (float) ($findingData['kerugian_daerah'] ?? 0),
                         'created_at'      => $now,
@@ -172,6 +181,9 @@ class LhpService
                 'judul'           => $data['judul'],
                 'tahun_anggaran'  => $data['tahun_anggaran'],
                 'opd_id'          => $data['opd_id'],
+                'simpulan_manual' => $data['simpulan_manual'] ?? null,
+                'rekomendasi_manual' => $data['rekomendasi_manual'] ?? null,
+                'penutup_manual' => $data['penutup_manual'] ?? null,
                 'status'          => 'draft', // Reset ke draft setelah revisi
             ]);
 
@@ -228,12 +240,15 @@ class LhpService
 
                 foreach ($data['findings'] as $fIndex => $findingData) {
                     $findingId = (string) str()->uuid();
+                    $uraianTemuanRekomendasi = $this->sanitizeRichTextValue(
+                        $findingData['uraian_temuan_rekomendasi'] ?? $findingData['uraian_temuan'] ?? ''
+                    );
                     $findingsBatch[] = [
                         'id'              => $findingId,
                         'lhp_id'          => $lhp->id,
                         'kode_temuan'     => $findingData['kode_temuan'] ?: 'T-' . ($fIndex + 1),
-                        'uraian_temuan'   => $this->sanitizeRichTextValue($findingData['uraian_temuan'] ?? ''),
-                        'rekomendasi_teks'=> $this->sanitizeRichTextValue($findingData['rekomendasi_teks'] ?? null),
+                        'uraian_temuan'   => $uraianTemuanRekomendasi,
+                        'rekomendasi_teks'=> null,
                         'kerugian_negara' => (float) ($findingData['kerugian_negara'] ?? 0),
                         'kerugian_daerah' => (float) ($findingData['kerugian_daerah'] ?? 0),
                         'created_at'      => $now,

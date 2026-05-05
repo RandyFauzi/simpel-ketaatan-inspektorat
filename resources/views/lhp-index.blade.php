@@ -2,6 +2,11 @@
 @section('title', 'Direktori Laporan Hasil Pemeriksaan (LHP)')
 
 @section('content')
+@php
+    $role = auth()->user()->role;
+    $isIrban = \Illuminate\Support\Str::startsWith((string) $role, 'inspektur_pembantu') || $role === 'irban';
+    $hideNilaiTemuan = $isIrban || in_array($role, ['ketua_tim', 'skpd', 'pengendali_teknis'], true);
+@endphp
 
 <!-- Header Area -->
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pt-2">
@@ -47,6 +52,9 @@
                     <th scope="col" class="px-6 py-4 w-16 text-center">NO</th>
                     <th scope="col" class="px-6 py-4">INFORMASI LHP</th>
                     <th scope="col" class="px-6 py-4">OPD / INSTANSI</th>
+                    @if(!$hideNilaiTemuan)
+                    <th scope="col" class="px-6 py-4 text-right">NILAI TEMUAN</th>
+                    @endif
                     <th scope="col" class="px-6 py-4 text-center">STATUS</th>
                     <th scope="col" class="px-6 py-4 text-right">AKSI</th>
                 </tr>
@@ -76,6 +84,11 @@
                             <span class="font-bold text-slate-700">{{ $lhp->opd->nama_opd ?? 'N/A' }}</span>
                         </div>
                     </td>
+                    @if(!$hideNilaiTemuan)
+                    <td class="px-6 py-5 text-right text-slate-700 font-mono font-semibold">
+                        Rp {{ number_format((float) $lhp->findings->sum(fn($f) => (float) $f->kerugian_negara + (float) $f->kerugian_daerah), 0, ',', '.') }}
+                    </td>
+                    @endif
                     <td class="px-6 py-5 text-center">
                         @php
                             $colors = [
@@ -128,7 +141,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="py-24">
+                    <td colspan="{{ $hideNilaiTemuan ? 5 : 6 }}" class="py-24">
                         <div class="flex flex-col items-center justify-center text-center px-4">
                             <div class="w-20 h-20 mb-6 rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-100 shadow-sm">
                                 <x-lucide-folder-open class="w-10 h-10 text-slate-300" />

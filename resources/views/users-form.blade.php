@@ -114,25 +114,25 @@
                             <input type="radio" name="role" value="skpd" x-model="role" class="peer sr-only">
                             <div class="p-4 bg-white border-2 border-slate-200 rounded-2xl hover:bg-slate-50 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 transition-all text-center">
                                 <x-lucide-building-2 class="w-6 h-6 mx-auto mb-2 text-slate-400 peer-checked:text-emerald-600" />
-                                <span class="block text-xs font-bold text-slate-700 peer-checked:text-emerald-700 uppercase tracking-wide">SKPD</span>
+                                <span class="block text-xs font-bold text-slate-700 peer-checked:text-emerald-700 uppercase tracking-wide">Pengendali Teknis</span>
                             </div>
                         </label>
                     </div>
                 </div>
 
                 <!-- TIM SELECTION (ONLY FOR KETUA_TIM & AUDITOR) -->
-                <div class="md:col-span-2" x-show="['ketua_tim', 'auditor'].includes(role)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="md:col-span-2" x-show="['ketua_tim', 'auditor', 'skpd', 'pengendali_teknis'].includes(role)" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Penugasan Tim Pokok <span class="text-red-500">*</span></label>
                     <select name="tim" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-semibold text-slate-700 select2">
                         <option value="">-- Pilih Tim (Tim 1 / Tim 2) --</option>
                         <option value="tim_1" {{ old('tim', $user->tim ?? '') == 'tim_1' ? 'selected' : '' }}>Tim 1</option>
                         <option value="tim_2" {{ old('tim', $user->tim ?? '') == 'tim_2' ? 'selected' : '' }}>Tim 2</option>
                     </select>
-                    <p class="text-[10px] text-slate-400 mt-1.5"><x-lucide-info class="w-3 h-3 inline" /> Wajib dipilih jika pengguna adalah Ketua Tim atau Auditor.</p>
+                    <p class="text-[10px] text-slate-400 mt-1.5"><x-lucide-info class="w-3 h-3 inline" /> Wajib dipilih jika pengguna adalah Ketua Tim, Pengendali Teknis, atau Auditor.</p>
                 </div>
 
                 <!-- OPD SELECTION (ONLY FOR SKPD) -->
-                <div class="md:col-span-2" x-show="role === 'skpd'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="md:col-span-2" x-show="false" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Instansi OPD <span class="text-red-500">*</span></label>
                     <select name="opd_id" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-semibold text-slate-700">
                         <option value="">-- Pilih OPD --</option>
