@@ -8,6 +8,9 @@
                 return $fallback;
             }
             $sanitized = \Mews\Purifier\Facades\Purifier::clean($value, 'audit_wysiwyg');
+            // Bersihkan karakter artefak copy/paste yang kadang dirender DOMPDF menjadi "?" di baris terpisah.
+            $sanitized = str_replace("\u{FFFD}", '', $sanitized);
+            $sanitized = preg_replace('/<\s*(p|div|li)\b[^>]*>\s*\?\s*<\/\s*\1\s*>/iu', '', (string) $sanitized) ?? (string) $sanitized;
             $plainText = html_entity_decode(strip_tags($sanitized), ENT_QUOTES, 'UTF-8');
             $plainText = trim(str_replace("\u{00A0}", ' ', $plainText));
             return $plainText !== '' ? $sanitized : $fallback;
@@ -108,12 +111,12 @@
 
         <div>
             <b>A. SIMPULAN (Ringkasan Hasil Audit)</b>
-            <div style="text-align: justify; margin-left: 20px; margin-bottom: 15px;">
+            <div class="editor-content" style="text-align: justify; margin-left: 20px; margin-bottom: 15px;">
                 {!! $renderRichText($lhp->simpulan_manual ?? null) !!}
             </div>
             
             <b>B. REKOMENDASI</b>
-            <div style="text-align: justify; margin-left: 20px; margin-bottom: 30px;">
+            <div class="editor-content" style="text-align: justify; margin-left: 20px; margin-bottom: 30px;">
                 {!! $renderRichText($lhp->rekomendasi_manual ?? null) !!}
             </div>
         </div>
@@ -152,7 +155,7 @@
 
         <div style="text-align: justify; margin-bottom: 8px;">
             1. Dasar Audit<br>
-            <div style="margin-top: 2px;">
+            <div class="editor-content" style="margin-top: 2px;">
                 {!! $renderRichText($lhp->content->metadata_tambahan['dasar_audit'] ?? null) !!}
             </div>
         </div>
@@ -161,17 +164,17 @@
             2. Tujuan, Metodologi, dan Batasan Tanggung Jawab
             <ol type="a" style="margin-top: 0; padding-left: 20px;">
                 <li>Tujuan Audit<br>
-                    <div style="margin-bottom: 3px;">
+                    <div class="editor-content" style="margin-bottom: 3px;">
                         {!! $renderRichText($lhp->content->metadata_tambahan['tujuan_audit'] ?? null) !!}
                     </div>
                 </li>
                 <li>Metodologi Audit<br>
-                    <div style="margin-bottom: 3px;">
+                    <div class="editor-content" style="margin-bottom: 3px;">
                         {!! $renderRichText($lhp->content->metadata_tambahan['metodologi_audit'] ?? null) !!}
                     </div>
                 </li>
                 <li>Batasan Tanggung Jawab<br>
-                    <div style="margin-bottom: 3px;">
+                    <div class="editor-content" style="margin-bottom: 3px;">
                         {!! $renderRichText($lhp->content->metadata_tambahan['batasan_tanggung_jawab'] ?? null) !!}
                     </div>
                 </li>
@@ -180,59 +183,87 @@
 
         <div style="text-align: justify; margin-bottom: 8px;">
             3. Sasaran dan Ruang Lingkup Audit
-            <ol type="a" style="margin-top: 0; padding-left: 20px;">
-                <li>Sasaran Audit<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['sasaran_audit'] ?? null) !!}
-                    </div>
-                </li>
-                <li>Ruang lingkup Audit<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['ruang_lingkup'] ?? null) !!}
-                    </div>
-                </li>
-                <li>Periode Audit<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['periode_audit'] ?? null) !!}
-                    </div>
-                </li>
-            </ol>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 2px; margin-bottom: 5px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">a.</td>
+                    <td valign="top" style="border: none;">
+                        Sasaran Audit<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['sasaran_audit'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">b.</td>
+                    <td valign="top" style="border: none;">
+                        Ruang lingkup Audit<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['ruang_lingkup'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 3px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">c.</td>
+                    <td valign="top" style="border: none;">
+                        Periode Audit<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['periode_audit'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         <div style="text-align: justify; margin-bottom: 8px;">
             4. Informasi Auditi
-            <ol type="a" style="margin-top: 0; padding-left: 20px;">
-                <li>Tujuan Program<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['info_tujuan_program'] ?? null) !!}
-                    </div>
-                </li>
-                <li>Kegiatan Program<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['info_kegiatan_program'] ?? null) !!}
-                    </div>
-                </li>
-                <li>Lokasi Program dan Alokasi Dana<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['info_lokasi_dana'] ?? null) !!}
-                    </div>
-                </li>
-                <li>Sumber dana<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['info_sumber_dana'] ?? null) !!}
-                    </div>
-                </li>
-                <li>Struktur Organisasi<br>
-                    <div style="margin-bottom: 3px;">
-                        {!! $renderRichText($lhp->content->metadata_tambahan['info_struktur_org'] ?? null) !!}
-                    </div>
-                </li>
-            </ol>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 2px; margin-bottom: 5px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">a.</td>
+                    <td valign="top" style="border: none;">
+                        Tujuan Program<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_tujuan_program'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">b.</td>
+                    <td valign="top" style="border: none;">
+                        Kegiatan Program<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_kegiatan_program'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">c.</td>
+                    <td valign="top" style="border: none;">
+                        Lokasi Program dan Alokasi Dana<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_lokasi_dana'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">d.</td>
+                    <td valign="top" style="border: none;">
+                        Sumber dana<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_sumber_dana'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 3px; border: none;">
+                <tr>
+                    <td width="20" valign="top" style="border: none;">e.</td>
+                    <td valign="top" style="border: none;">
+                        Struktur Organisasi<br>
+                        <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_struktur_org'] ?? null) !!}</div>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         <div style="text-align: justify; margin-bottom: 12px;">
             5. Penilaian atas Sistem Pengendalian Intern<br>
-            <div style="margin-top: 2px;">
+            <div class="editor-content" style="margin-top: 2px;">
                 {!! $renderRichText($lhp->content->metadata_tambahan['penilaian_spi'] ?? null) !!}
             </div>
         </div>
@@ -240,67 +271,41 @@
         {{-- Page Break untuk memisahkan BAB II ke halaman baru --}}
         <div class="page-break"></div>
         
-        <div style="margin-bottom: 10px; margin-top: 0; font-weight: bold; text-transform: uppercase;">
-            BAB II URAIAN HASIL AUDIT
+        <div style="text-align: center; font-weight: bold; margin-top: 15px;">
+            BAB II<br>URAIAN HASIL AUDIT
         </div>
-
-        <div style="text-align: justify; margin-bottom: 8px;">
-            1. Penilaian atas Ketaatan terhadap Ketentuan<br>
-            <div style="margin-top: 2px;">
-                {!! $renderRichText($lhp->content->metadata_tambahan['penilaian_ketaatan'] ?? null) !!}
-            </div>
-        </div>
-
-        <div style="text-align: justify; margin-bottom: 8px;">
-            2. Kesesuaian Output dengan Tujuan Program<br>
-            <div style="margin-top: 2px;">
-                {!! $renderRichText($lhp->content->metadata_tambahan['kesesuaian_output'] ?? null) !!}
-            </div>
-        </div>
-
-        <div style="text-align: justify; margin-bottom: 5px;">
-            3. Temuan Hasil Audit
-        </div>
-
-        @forelse($lhp->findings as $finding)
-            <div style="text-align: justify; margin-bottom: 6px; padding-left: 18px;">
-                <div>
-                    {{ $loop->iteration }}. <b>({{ $finding->kode_temuan }})</b>
-                </div>
-                <div style="margin-top: 2px;">
-                    {!! $renderRichText($finding->uraian_temuan, '................................................................') !!}
-                </div>
-                @if(($finding->kerugian_negara > 0) || ($finding->kerugian_daerah > 0))
-                    <div style="margin-top: 4px;">
-                        <i>(Nilai Kerugian Negara: Rp{{ number_format($finding->kerugian_negara ?? 0, 2, ',', '.') }} | Kerugian Daerah: Rp{{ number_format($finding->kerugian_daerah ?? 0, 2, ',', '.') }})</i>
+        <ol style="margin-top: 10px;">
+            <li>Penilaian atas Ketaatan terhadap Ketentuan (area, proses, sistem, fungsi, program/kegiatan)</li>
+            <li>Kesesuaian Output dengan Tujuan Program</li>
+            <li>Temuan Hasil Audit
+                @forelse($lhp->findings as $finding)
+                    <div style="text-align: justify; margin-bottom: 6px; padding-left: 18px; margin-top: 4px;">
+                        <div>
+                            {{ $loop->iteration }}.
+                        </div>
+                        <div class="editor-content" style="margin-top: 2px;">
+                            {!! $renderRichText($finding->uraian_temuan, '................................................................') !!}
+                        </div>
+                        @if(($finding->kerugian_negara > 0) || ($finding->kerugian_daerah > 0))
+                            <div style="margin-top: 4px;">
+                                <i>(Nilai Kerugian Negara: Rp{{ number_format($finding->kerugian_negara ?? 0, 2, ',', '.') }} | Kerugian Daerah: Rp{{ number_format($finding->kerugian_daerah ?? 0, 2, ',', '.') }})</i>
+                            </div>
+                        @endif
                     </div>
-                @endif
-            </div>
-        @empty
-            <div style="text-align: justify; margin-bottom: 6px; padding-left: 18px;">
-                1. ................................................................
-            </div>
-        @endforelse
-
-        <div style="text-align: justify; margin-bottom: 8px;">
-            4. Hal-hal Penting Lainnya yang Perlu Diperhatikan<br>
-            <div style="margin-top: 2px;">
-                {!! $renderRichText($lhp->content->metadata_tambahan['hal_penting_lainnya'] ?? null) !!}
-            </div>
+                @empty
+                    <div style="text-align: justify; margin-bottom: 6px; padding-left: 18px; margin-top: 4px;">
+                        1. ................................................................
+                    </div>
+                @endforelse
+            </li>
+            <li>Hal-hal Penting Lainnya yang Perlu Diperhatikan</li>
+            <li>Tindak Lanjut Temuan Audit Tahun Sebelumnya</li>
+        </ol>
+        <div style="text-align: center; font-weight: bold; margin-top: 15px;">
+            BAB III<br>PENUTUP
         </div>
 
-        <div style="text-align: justify; margin-bottom: 12px;">
-            5. Tindak Lanjut Temuan Audit Tahun Sebelumnya<br>
-            <div style="margin-top: 2px;">
-                {!! $renderRichText($lhp->content->metadata_tambahan['tindak_lanjut_sebelumnya'] ?? null) !!}
-            </div>
-        </div>
-
-        <div style="margin-bottom: 10px; margin-top: 25px; font-weight: bold; text-transform: uppercase;">
-            BAB III PENUTUP
-        </div>
-
-        <div style="text-align: justify; margin-bottom: 30px; text-indent: 45px;">
+        <div class="editor-content" style="text-align: justify; margin-bottom: 30px; text-indent: 45px; margin-top: 8px;">
             {!! $renderRichText($lhp->penutup_manual ?? null) !!}
         </div>
 
@@ -390,7 +395,21 @@
         </div>
 
         <div style="text-align: justify; text-indent: 45px; margin-bottom: 15px; line-height: 1.5;">
-            Berdasarkan Surat Perintah Tugas Inspektorat Daerah Kabupaten Barito Selatan Nomor: {{ $lhp->content->metadata_tambahan['nomor_spt'] ?? '...................' }} tanggal {{ $lhp->content->metadata_tambahan['tanggal_spt'] ?? '...................' }}, dalam rangka melaksanakan Audit {{ $lhp->judul }} Tahun Anggaran {{ $lhp->tahun_anggaran }} pada {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan, dengan ini kami sampaikan bahwa Tim Inspektorat Daerah Kabupaten Barito Selatan telah selesai melaksanakan tugas pemeriksaan pada {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan, selanjutnya sudah membuat/menyusun Laporan hasil Audit Nomor {{ $lhp->nomor_lhp }} tanggal {{ \Carbon\Carbon::parse($lhp->tgl_lhp ?? $lhp->tanggal_lhp)->translatedFormat('d F Y') }} sebagaimana terlampir.
+            @php
+                $tanggalSptRaw = $lhp->content->metadata_tambahan['tanggal_spt'] ?? null;
+                try {
+                    $tanggalSptFormatted = !empty($tanggalSptRaw)
+                        ? \Carbon\Carbon::parse($tanggalSptRaw)->locale('id')->translatedFormat('d F Y')
+                        : '...................';
+                } catch (\Throwable $e) {
+                    $tanggalSptFormatted = !empty($tanggalSptRaw) ? $tanggalSptRaw : '...................';
+                }
+
+                $tanggalLhpFormatted = \Carbon\Carbon::parse($lhp->tgl_lhp ?? $lhp->tanggal_lhp)
+                    ->locale('id')
+                    ->translatedFormat('d F Y');
+            @endphp
+            Berdasarkan Surat Perintah Tugas Inspektorat Daerah Kabupaten Barito Selatan Nomor: {{ $lhp->content->metadata_tambahan['nomor_spt'] ?? '...................' }} tanggal {{ $tanggalSptFormatted }}, dalam rangka melaksanakan Audit {{ $lhp->judul }} Tahun Anggaran {{ $lhp->tahun_anggaran }} pada {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan, dengan ini kami sampaikan bahwa Tim Inspektorat Daerah Kabupaten Barito Selatan telah selesai melaksanakan tugas pemeriksaan pada {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan, selanjutnya sudah membuat/menyusun Laporan hasil Audit Nomor {{ $lhp->nomor_lhp }} tanggal {{ $tanggalLhpFormatted }} sebagaimana terlampir.
         </div>
 
         <div style="text-align: justify; text-indent: 45px; margin-bottom: 40px;">

@@ -444,10 +444,10 @@
                                             class="w-3.5 h-3.5" /> Hapus</button>
                                 </div>
                                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-                                    <div><label class="block text-xs font-bold text-slate-700 mb-1.5">Kode
-                                            Temuan</label><input type="text" :name="'findings['+fIdx+'][kode_temuan]'"
-                                            x-model="finding.kode_temuan" :placeholder="'T-'+(fIdx+1)"
-                                            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"></div>
+                                    <div class="hidden">
+                                        <input type="hidden" :name="'findings['+fIdx+'][kode_temuan]'"
+                                            x-model="finding.kode_temuan">
+                                    </div>
                                     <div class="lg:col-span-3">
                                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Uraian Temuan & Rekomendasi <span
                                                 class="text-red-500">*</span></label>

@@ -75,18 +75,48 @@
             margin-bottom: 4px;
         }
 
-        /* Konsistensi list bertingkat dari editor ke PDF */
+        /* Ensure base ordered list uses numbers and has padding */
         main ol {
             list-style-type: decimal;
+            padding-left: 20px;
+            margin-top: 2px;
+            margin-bottom: 2px;
         }
-        main ol ol {
+        /* Level 2: force to lower-alpha (a, b, c) and indent */
+        main ol > li > ol {
             list-style-type: lower-alpha;
+            padding-left: 20px;
         }
-        main ol ol ol {
-            list-style-type: upper-alpha;
-        }
-        main ol ol ol ol {
+        /* Level 3: force to lower-roman (i, ii, iii) and indent */
+        main ol > li > ol > li > ol {
             list-style-type: lower-roman;
+            padding-left: 20px;
+        }
+        /* Ensure paragraph inside list doesn't break styling */
+        main ol li p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Honor explicit list type/style coming from SunEditor content */
+        main ol[type="a"], main ol[style*="lower-alpha"], main ul[style*="lower-alpha"] { list-style-type: lower-alpha !important; }
+        main ol[type="A"], main ol[style*="upper-alpha"], main ul[style*="upper-alpha"] { list-style-type: upper-alpha !important; }
+        main ol[type="i"], main ol[style*="lower-roman"], main ul[style*="lower-roman"] { list-style-type: lower-roman !important; }
+        main ol[type="I"], main ol[style*="upper-roman"], main ul[style*="upper-roman"] { list-style-type: upper-roman !important; }
+
+        /* SunEditor Content Tables */
+        .editor-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        .editor-content table,
+        .editor-content th,
+        .editor-content td {
+            border: 1px solid black;
+            padding: 4px 6px;
+            vertical-align: top;
         }
     </style>
 </head>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Lhp;
+use App\Models\LhpLog;
 use App\Models\Opd;
 use App\Models\User;
 use App\Notifications\LhpWorkflowNotification;
@@ -207,15 +208,11 @@ class LhpController extends Controller
         if ($editId) {
             $lhp = $service->updateFullLhp($editId, $request->all());
             $message = 'Dokumen LHP berhasil diperbarui. Silakan tinjau sebelum mengajukan ulang.';
+            $this->logLhpActivity($lhp, 'Memperbarui Draft LHP');
         } else {
             $lhp = $service->createFullLhp($request->all());
             $message = 'Dokumen LHP berhasil disimpan sebagai Draft. Silakan tinjau sebelum dipublikasikan.';
-            
-            \App\Models\LhpLog::create([
-                'lhp_id' => $lhp->id,
-                'user_id' => auth()->id(),
-                'action' => 'Menciptakan Draft LHP Baru'
-            ]);
+            $this->logLhpActivity($lhp, 'Menciptakan Draft LHP Baru');
         }
 
         return redirect()->route('auditor.lhp.preview', $lhp->id)
@@ -263,11 +260,7 @@ class LhpController extends Controller
 
         $lhp->update(['status' => 'review_ketua']);
         
-        \App\Models\LhpLog::create([
-            'lhp_id' => $lhp->id,
-            'user_id' => auth()->id(),
-            'action' => 'Mengajukan LHP untuk direviu oleh Ketua Tim'
-        ]);
+        $this->logLhpActivity($lhp, 'Mengajukan LHP untuk direviu oleh Ketua Tim');
 
         $targetKetuaTim = User::query()
             ->whereIn('role', ['ketua_tim', 'skpd', 'pengendali_teknis'])
@@ -331,7 +324,8 @@ class LhpController extends Controller
             'opd',
             'content',
             'findings.recommendations.followUpEvidences.user',
-            'reviews.reviewer'
+            'reviews.reviewer',
+            'logs.user'
         ]);
 
         return view('lhp-detail', [
@@ -368,6 +362,7 @@ class LhpController extends Controller
         }
 
         $service->finalizeLhp($lhp->id);
+        $this->logLhpActivity($lhp, 'Mempublikasikan LHP (Finalize)');
 
         return redirect()->route('lhp.show', $lhp->id)
             ->with('success', 'LHP berhasil dipublikasikan! Dokumen sekarang aktif dan terlihat oleh SKPD terkait.');
@@ -492,5 +487,14 @@ class LhpController extends Controller
             </table>
             <div style="border-top: 3px solid black; border-bottom: 1px solid black; height: 2px; margin-top: 8px; margin-bottom: 25px;"></div>
         ';
+    }
+
+    private function logLhpActivity(Lhp $lhp, string $action): void
+    {
+        LhpLog::create([
+            'lhp_id' => $lhp->id,
+            'user_id' => auth()->id(),
+            'action' => $action,
+        ]);
     }
 }

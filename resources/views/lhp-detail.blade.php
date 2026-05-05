@@ -6,6 +6,35 @@
     $isKetuaLike = in_array(auth()->user()->role, ['ketua_tim', 'skpd', 'pengendali_teknis'], true);
 @endphp
 
+<style>
+    /* Keep SunEditor/Trix rich text formatting visible on detail page */
+    .lhp-richtext p {
+        margin: 0 0 0.5rem 0;
+    }
+    .lhp-richtext ol,
+    .lhp-richtext ul {
+        margin: 0.35rem 0 0.5rem 1.25rem;
+        padding-left: 1rem;
+    }
+    .lhp-richtext ol {
+        list-style-type: decimal;
+    }
+    .lhp-richtext ul {
+        list-style-type: disc;
+    }
+    .lhp-richtext ol > li > ol {
+        list-style-type: lower-alpha;
+    }
+    .lhp-richtext ol > li > ol > li > ol {
+        list-style-type: lower-roman;
+    }
+    /* Respect explicit list type/style chosen in editor */
+    .lhp-richtext ol[type="a"], .lhp-richtext ol[style*="lower-alpha"], .lhp-richtext ul[style*="lower-alpha"] { list-style-type: lower-alpha !important; }
+    .lhp-richtext ol[type="A"], .lhp-richtext ol[style*="upper-alpha"], .lhp-richtext ul[style*="upper-alpha"] { list-style-type: upper-alpha !important; }
+    .lhp-richtext ol[type="i"], .lhp-richtext ol[style*="lower-roman"], .lhp-richtext ul[style*="lower-roman"] { list-style-type: lower-roman !important; }
+    .lhp-richtext ol[type="I"], .lhp-richtext ol[style*="upper-roman"], .lhp-richtext ul[style*="upper-roman"] { list-style-type: upper-roman !important; }
+</style>
+
 {{-- ═══ DYNAMIC STATUS BANNER ═══ --}}
 @if($lhp->status === 'draft')
     <div class="mb-6 bg-amber-50 border border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in-up">
@@ -150,7 +179,7 @@
                             <span class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
                             Dasar Audit
                         </h2>
-                        <div class="pl-9 prose prose-sm max-w-none text-slate-600">
+                        <div class="pl-9 lhp-richtext text-slate-600">
                             {!! \Mews\Purifier\Facades\Purifier::clean($lhp->content->metadata_tambahan['dasar_audit'] ?? 'Data tidak tersedia.', 'audit_wysiwyg') !!}
                         </div>
                     </section>
@@ -160,7 +189,7 @@
                             <span class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center text-xs">2</span>
                             Tujuan Audit
                         </h2>
-                        <div class="pl-9 prose prose-sm max-w-none text-slate-600">
+                        <div class="pl-9 lhp-richtext text-slate-600">
                             {!! \Mews\Purifier\Facades\Purifier::clean($lhp->content->metadata_tambahan['tujuan_audit'] ?? 'Data tidak tersedia.', 'audit_wysiwyg') !!}
                         </div>
                     </section>
@@ -170,7 +199,7 @@
                             <span class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center text-xs">3</span>
                             Metodologi & Batasan
                         </h2>
-                        <div class="pl-9 prose prose-sm max-w-none text-slate-600">
+                        <div class="pl-9 lhp-richtext text-slate-600">
                             {!! \Mews\Purifier\Facades\Purifier::clean(($lhp->content->metadata_tambahan['metodologi_audit'] ?? $lhp->content->metadata_tambahan['metodologi'] ?? 'Data tidak tersedia.'), 'audit_wysiwyg') !!}
                         </div>
                     </section>
@@ -180,7 +209,7 @@
                             <span class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center text-xs">4</span>
                             Sasaran, Ruang Lingkup & Periode
                         </h2>
-                        <div class="pl-9 prose prose-sm max-w-none text-slate-600">
+                        <div class="pl-9 lhp-richtext text-slate-600">
                             {!! \Mews\Purifier\Facades\Purifier::clean(($lhp->content->metadata_tambahan['sasaran_audit'] ?? $lhp->content->metadata_tambahan['sasaran'] ?? 'Data tidak tersedia.'), 'audit_wysiwyg') !!}
                         </div>
                     </section>
@@ -190,7 +219,7 @@
                             <span class="w-7 h-7 rounded bg-blue-600 text-white flex items-center justify-center text-xs">5</span>
                             Informasi Auditi
                         </h2>
-                        <div class="pl-9 prose prose-sm max-w-none text-slate-600">
+                        <div class="pl-9 lhp-richtext text-slate-600">
                             @php
                                 $infoAuditiChunks = array_filter([
                                     $lhp->content->metadata_tambahan['info_tujuan_program'] ?? null,
@@ -209,7 +238,7 @@
                     @if($lhp->content && $lhp->content->bab_3_penutup)
                     <section class="pt-6 border-t border-slate-100">
                         <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Penutup & Pernyataan</h2>
-                        <div class="italic text-slate-500 pl-4 border-l-4 border-slate-100 prose prose-sm max-w-none">
+                        <div class="italic text-slate-500 pl-4 border-l-4 border-slate-100 lhp-richtext">
                             {!! \Mews\Purifier\Facades\Purifier::clean($lhp->content->bab_3_penutup, 'audit_wysiwyg') !!}
                         </div>
                     </section>
@@ -625,6 +654,11 @@
                     <div class="absolute w-0.5 h-10 bg-gradient-to-b from-transparent to-slate-200 left-[-2px] -top-10"></div>
                     
                     @forelse($lhp->logs as $log)
+                    @php
+                        $actorName = $log->user?->name ?? 'Sistem / User Dihapus';
+                        $rawRole = $log->user?->role ?? 'pengguna';
+                        $displayRole = strtolower((string) $rawRole) === 'skpd' ? 'pengendali_teknis' : (string) $rawRole;
+                    @endphp
                     <div class="relative group">
                         <!-- Timeline Dot (Warna Pintar Berdasarkan Kata Kunci Aksi) -->
                         <div class="absolute -left-[33px] top-1.5 w-4 h-4 rounded-full border-2 border-white shadow-sm transition-transform duration-300 group-hover:scale-125
@@ -637,11 +671,11 @@
                         <!-- Content Card -->
                         <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-[0_2px_10px_rgb(0,0,0,0.02)] hover:shadow-lg hover:border-blue-100 transition-all">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
-                                <h4 class="font-bold text-slate-800">{{ $log->user->name ?? 'System Auto-Task' }}</h4>
+                                <h4 class="font-bold text-slate-800">{{ $actorName }}</h4>
                                 
                             </div>
                             <p class="text-[10px] font-black tracking-widest uppercase text-slate-300 mb-3">
-                                {{ $log->user ? str_replace('_', ' ', $log->user->role) : 'SYSTEM GENERATED' }}
+                                {{ strtoupper(str_replace('_', ' ', $displayRole)) }}
                             </p>
                             <p class="text-sm font-medium text-slate-700 leading-relaxed bg-slate-50/70 p-3.5 rounded-xl border border-slate-50">
                                 {{ $log->action }}

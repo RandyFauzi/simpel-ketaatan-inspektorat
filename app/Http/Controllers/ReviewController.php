@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lhp;
+use App\Models\LhpLog;
 use App\Models\LhpReview;
 use App\Models\User;
 use App\Notifications\LhpWorkflowNotification;
@@ -55,6 +56,9 @@ class ReviewController extends Controller
         } elseif ($isIrban && $action === 'published') {
             $logAction = 'Mengesahkan dan menyelesaikan LHP secara resmi';
         }
+        if ($logAction === '') {
+            $logAction = 'Memproses aksi reviu LHP';
+        }
 
         if ($isReturning && trim((string) $request->input('catatan', '')) === '') {
              return back()->withErrors(['catatan' => 'Catatan revisi wajib diisi jika mengembalikan LHP untuk perbaikan.'])->withInput();
@@ -92,7 +96,7 @@ class ReviewController extends Controller
             }
 
             // 4. Catat Jejak Aktivitas
-            \App\Models\LhpLog::create([
+            LhpLog::create([
                 'lhp_id'  => $lhp->id,
                 'user_id' => $currentUser->id,
                 'action'  => $logAction
@@ -215,7 +219,7 @@ class ReviewController extends Controller
             ]);
 
             // Catat jejak aktivitas
-            \App\Models\LhpLog::create([
+            LhpLog::create([
                 'lhp_id'  => $lhp->id,
                 'user_id' => auth()->id(),
                 'action'  => 'Membatalkan publikasi dokumen dan menarik mundur status LHP (Unpublish)'
