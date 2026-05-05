@@ -18,21 +18,87 @@
             font-family: Arial, Helvetica, sans-serif;
             font-size: 12pt;
             color: #000;
-            line-height: 1.5;
+            line-height: 1.35;
         }
 
-        /* Kompres spasi konten PDF, khususnya BAB I */
+        main {
+            text-align: justify;
+        }
+
+        /* Spasi dasar surat/laporan */
         main p,
         main ol,
         main ul,
         main li {
-            line-height: 1.28;
+            line-height: 1.35;
             margin-top: 0;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
         }
-        main ol,
-        main ul {
-            padding-left: 18px;
+
+        .section-title {
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.25;
+            margin-bottom: 14px;
+        }
+
+        .chapter-title {
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.25;
+            margin-top: 14px;
+            margin-bottom: 10px;
+        }
+
+        .editor-content {
+            text-align: justify;
+            line-height: 1.35;
+        }
+
+        .editor-content p,
+        .editor-content div {
+            margin-top: 0;
+            margin-bottom: 4px;
+            line-height: 1.35;
+        }
+
+        .layout-table,
+        .report-point,
+        .report-subpoint {
+            border-collapse: collapse;
+            width: 100%;
+            border: none;
+        }
+
+        .layout-table td,
+        .report-point td,
+        .report-subpoint td {
+            border: none !important;
+            padding: 0;
+            vertical-align: top;
+            line-height: 1.35;
+        }
+
+        .report-point {
+            margin-bottom: 5px;
+        }
+
+        .report-subpoint {
+            margin-bottom: 4px;
+        }
+
+        .report-number {
+            width: 24px;
+            white-space: nowrap;
+        }
+
+        .report-sub-indent {
+            width: 24px;
+        }
+
+        .report-sub-number {
+            width: 22px;
+            white-space: nowrap;
         }
 
         /* 3. HEADER (KOP SURAT) GLOBAL */
@@ -75,27 +141,66 @@
             margin-bottom: 4px;
         }
 
+        /* Fallback untuk list native; list SunEditor akan dinormalisasi menjadi table-list. */
+        main ol,
+        main ul,
+        .editor-content ol,
+        .editor-content ul {
+            margin-top: 2px !important;
+            margin-bottom: 2px !important;
+            margin-left: 20px !important;
+            padding-left: 0 !important;
+        }
+
+        main li,
+        .editor-content li {
+            margin-left: 0 !important;
+            padding-left: 2px !important;
+            margin-bottom: 2px !important;
+            text-align: justify;
+        }
+
+        /* Nested lists (a, b, c or i, ii, iii) */
+        main ol li ol,
+        main ul li ul,
+        main ol li ul,
+        main ul li ol,
+        .editor-content ol li ol,
+        .editor-content ul li ul,
+        .editor-content ol li ul,
+        .editor-content ul li ol {
+            margin-left: 16px !important;
+            padding-left: 0 !important;
+            margin-top: 2px !important;
+            margin-bottom: 2px !important;
+        }
+
+        /* Neutralize SunEditor's injected paragraphs inside lists */
+        main li p,
+        .editor-content li p {
+            margin: 0 !important;
+            padding: 0 !important;
+            display: inline !important;
+        }
+
+        .editor-content p {
+            margin-top: 0 !important;
+            margin-bottom: 3px !important;
+        }
+
         /* Ensure base ordered list uses numbers and has padding */
         main ol {
             list-style-type: decimal;
-            padding-left: 20px;
             margin-top: 2px;
             margin-bottom: 2px;
         }
         /* Level 2: force to lower-alpha (a, b, c) and indent */
         main ol > li > ol {
             list-style-type: lower-alpha;
-            padding-left: 20px;
         }
         /* Level 3: force to lower-roman (i, ii, iii) and indent */
         main ol > li > ol > li > ol {
             list-style-type: lower-roman;
-            padding-left: 20px;
-        }
-        /* Ensure paragraph inside list doesn't break styling */
-        main ol li p {
-            margin: 0;
-            padding: 0;
         }
 
         /* Honor explicit list type/style coming from SunEditor content */
@@ -103,6 +208,31 @@
         main ol[type="A"], main ol[style*="upper-alpha"], main ul[style*="upper-alpha"] { list-style-type: upper-alpha !important; }
         main ol[type="i"], main ol[style*="lower-roman"], main ul[style*="lower-roman"] { list-style-type: lower-roman !important; }
         main ol[type="I"], main ol[style*="upper-roman"], main ul[style*="upper-roman"] { list-style-type: upper-roman !important; }
+
+        /* Allow long layout tables to split normally in DOMPDF */
+        table {
+            page-break-inside: auto !important;
+        }
+        tr {
+            page-break-inside: auto !important;
+            page-break-after: auto !important;
+        }
+        td,
+        th {
+            page-break-inside: auto !important;
+        }
+        thead {
+            display: table-header-group !important;
+        }
+        tfoot {
+            display: table-footer-group !important;
+        }
+
+        .signature-table,
+        .signature-table tr,
+        .signature-table td {
+            page-break-inside: avoid !important;
+        }
 
         /* SunEditor Content Tables */
         .editor-content table {
@@ -117,6 +247,33 @@
             border: 1px solid black;
             padding: 4px 6px;
             vertical-align: top;
+        }
+
+        /* Borderless table-list generated from SunEditor ol/ul for stable DOMPDF hanging indent */
+        .editor-content table.pdf-list,
+        .editor-content table.pdf-list tr,
+        .editor-content table.pdf-list td {
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .editor-content table.pdf-list {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1px 0 3px 0;
+        }
+
+        .editor-content table.pdf-list td.pdf-list-marker {
+            width: 22px;
+            padding-right: 4px !important;
+            white-space: nowrap;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .editor-content table.pdf-list td.pdf-list-content {
+            vertical-align: top;
+            text-align: justify;
         }
     </style>
 </head>

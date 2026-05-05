@@ -3,7 +3,166 @@
 @section('content')
 
     @php
-        $renderRichText = function ($value, $fallback = '................................................................') {
+        $toAlphaMarker = function (int $number, bool $upper = false): string {
+            $number = max(1, $number);
+            $marker = '';
+
+            while ($number > 0) {
+                $number--;
+                $marker = chr(97 + ($number % 26)) . $marker;
+                $number = intdiv($number, 26);
+            }
+
+            return $upper ? strtoupper($marker) : $marker;
+        };
+
+        $toRomanMarker = function (int $number, bool $upper = false): string {
+            $number = max(1, min(3999, $number));
+            $map = [
+                1000 => 'm', 900 => 'cm', 500 => 'd', 400 => 'cd',
+                100 => 'c', 90 => 'xc', 50 => 'l', 40 => 'xl',
+                10 => 'x', 9 => 'ix', 5 => 'v', 4 => 'iv', 1 => 'i',
+            ];
+            $result = '';
+
+            foreach ($map as $value => $roman) {
+                while ($number >= $value) {
+                    $result .= $roman;
+                    $number -= $value;
+                }
+            }
+
+            return $upper ? strtoupper($result) : $result;
+        };
+
+        $formatListMarker = function (\DOMElement $list, int $number, int $level) use ($toAlphaMarker, $toRomanMarker): string {
+            $tagName = strtolower($list->tagName);
+
+            if ($tagName === 'ul') {
+                return $level % 2 === 0 ? '&bull;' : '-';
+            }
+
+            $type = $list->getAttribute('type');
+
+            return match ($type) {
+                'a' => $toAlphaMarker($number) . '.',
+                'A' => $toAlphaMarker($number, true) . '.',
+                'i' => $toRomanMarker($number) . '.',
+                'I' => $toRomanMarker($number, true) . '.',
+                default => match (true) {
+                    $level === 1 => $toAlphaMarker($number) . '.',
+                    $level >= 2 => $toRomanMarker($number) . '.',
+                    default => $number . '.',
+                },
+            };
+        };
+
+        $renderAttributes = function (\DOMElement $node): string {
+            $attributes = '';
+
+            foreach ($node->attributes ?? [] as $attribute) {
+                if (strtolower($attribute->name) === 'id') {
+                    continue;
+                }
+
+                $name = htmlspecialchars($attribute->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $value = htmlspecialchars($attribute->value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $attributes .= " {$name}=\"{$value}\"";
+            }
+
+            return $attributes;
+        };
+
+        $renderNode = null;
+        $renderList = null;
+
+        $renderNode = function (\DOMNode $node, int $level = 0) use (&$renderNode, &$renderList, $renderAttributes): string {
+            if ($node instanceof \DOMText) {
+                return htmlspecialchars($node->nodeValue, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            }
+
+            if (!$node instanceof \DOMElement) {
+                return '';
+            }
+
+            $tagName = strtolower($node->tagName);
+
+            if (in_array($tagName, ['ol', 'ul'], true)) {
+                return $renderList($node, $level);
+            }
+
+            if ($tagName === 'br') {
+                return '<br>';
+            }
+
+            $attributes = $renderAttributes($node);
+            $content = '';
+
+            foreach ($node->childNodes as $childNode) {
+                $content .= $renderNode($childNode, $level);
+            }
+
+            return "<{$tagName}{$attributes}>{$content}</{$tagName}>";
+        };
+
+        $renderList = function (\DOMElement $list, int $level = 0) use (&$renderNode, $formatListMarker): string {
+            $start = $list->hasAttribute('start') ? max(1, (int) $list->getAttribute('start')) : 1;
+            $number = $start;
+            $html = '<table class="pdf-list pdf-list-level-' . min($level, 3) . '" width="100%" cellpadding="0" cellspacing="0">';
+
+            foreach ($list->childNodes as $childNode) {
+                if (!$childNode instanceof \DOMElement || strtolower($childNode->tagName) !== 'li') {
+                    continue;
+                }
+
+                $marker = $formatListMarker($list, $number, $level);
+                $content = '';
+
+                foreach ($childNode->childNodes as $itemChild) {
+                    $content .= $renderNode($itemChild, $level + 1);
+                }
+
+                $html .= '<tr>';
+                $html .= '<td class="pdf-list-marker" width="22" valign="top" style="width: 22px; padding-right: 4px;">' . $marker . '</td>';
+                $html .= '<td class="pdf-list-content" valign="top" style="text-align: justify;">' . $content . '</td>';
+                $html .= '</tr>';
+                $number++;
+            }
+
+            $html .= '</table>';
+
+            return $html;
+        };
+
+        $normalizeRichTextLists = function (string $html) use (&$renderNode): string {
+            if (!str_contains($html, '<ol') && !str_contains($html, '<ul')) {
+                return $html;
+            }
+
+            $dom = new \DOMDocument('1.0', 'UTF-8');
+            $previous = libxml_use_internal_errors(true);
+            $loaded = $dom->loadHTML(
+                '<?xml encoding="UTF-8"><div id="pdf-fragment">' . $html . '</div>',
+                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+            );
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+
+            if (!$loaded) {
+                return $html;
+            }
+
+            $root = $dom->getElementById('pdf-fragment') ?: $dom->documentElement;
+            $normalized = '';
+
+            foreach ($root->childNodes as $childNode) {
+                $normalized .= $renderNode($childNode);
+            }
+
+            return $normalized !== '' ? $normalized : $html;
+        };
+
+        $renderRichText = function ($value, $fallback = '................................................................') use ($normalizeRichTextLists) {
             if (!is_string($value) || trim($value) === '') {
                 return $fallback;
             }
@@ -13,7 +172,7 @@
             $sanitized = preg_replace('/<\s*(p|div|li)\b[^>]*>\s*\?\s*<\/\s*\1\s*>/iu', '', (string) $sanitized) ?? (string) $sanitized;
             $plainText = html_entity_decode(strip_tags($sanitized), ENT_QUOTES, 'UTF-8');
             $plainText = trim(str_replace("\u{00A0}", ' ', $plainText));
-            return $plainText !== '' ? $sanitized : $fallback;
+            return $plainText !== '' ? $normalizeRichTextLists($sanitized) : $fallback;
         };
 
         $judulAuditRaw = trim((string) ($lhp->judul ?? ''));
@@ -124,7 +283,7 @@
         <p style="text-indent: 0; margin-bottom: 5px;">Demikian Kami sampaikan, untuk dapat melakukan langkah-langkah tindak lanjut yang diperlukan.</p>
         <p style="text-indent: 0; margin-bottom: 30px;">Atas perhatian dan kerjasama yang baik, kami ucapkan terima kasih.</p>
 
-        <table width="100%" style="border: none; page-break-inside: avoid;">
+        <table class="signature-table" width="100%" style="border: none; page-break-inside: avoid;">
             <tr>
                 <td width="50%" style="border: none;"></td>
                 <td width="50%" style="border: none; text-align: center; line-height: 1.2;">
@@ -153,57 +312,98 @@
             BAB I INFORMASI UMUM
         </div>
 
-        <div style="text-align: justify; margin-bottom: 8px;">
-            1. Dasar Audit<br>
-            <div class="editor-content" style="margin-top: 2px;">
-                {!! $renderRichText($lhp->content->metadata_tambahan['dasar_audit'] ?? null) !!}
-            </div>
-        </div>
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-number" valign="top">1.</td>
+                <td valign="top">
+                    Dasar Audit<br>
+                    <div class="editor-content" style="margin-top: 2px;">
+                        {!! $renderRichText($lhp->content->metadata_tambahan['dasar_audit'] ?? null) !!}
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-        <div style="text-align: justify; margin-bottom: 8px;">
-            2. Tujuan, Metodologi, dan Batasan Tanggung Jawab
-            <ol type="a" style="margin-top: 0; padding-left: 20px;">
-                <li>Tujuan Audit<br>
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-number" valign="top">2.</td>
+                <td valign="top">Tujuan, Metodologi, dan Batasan Tanggung Jawab</td>
+            </tr>
+        </table>
+
+        <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-sub-indent"></td>
+                <td class="report-sub-number" valign="top">a.</td>
+                <td valign="top">
+                    Tujuan Audit<br>
                     <div class="editor-content" style="margin-bottom: 3px;">
                         {!! $renderRichText($lhp->content->metadata_tambahan['tujuan_audit'] ?? null) !!}
                     </div>
-                </li>
-                <li>Metodologi Audit<br>
+                </td>
+            </tr>
+        </table>
+
+        <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-sub-indent"></td>
+                <td class="report-sub-number" valign="top">b.</td>
+                <td valign="top">
+                    Metodologi Audit<br>
                     <div class="editor-content" style="margin-bottom: 3px;">
                         {!! $renderRichText($lhp->content->metadata_tambahan['metodologi_audit'] ?? null) !!}
                     </div>
-                </li>
-                <li>Batasan Tanggung Jawab<br>
+                </td>
+            </tr>
+        </table>
+
+        <table class="report-subpoint" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-sub-indent"></td>
+                <td class="report-sub-number" valign="top">c.</td>
+                <td valign="top">
+                    Batasan Tanggung Jawab<br>
                     <div class="editor-content" style="margin-bottom: 3px;">
                         {!! $renderRichText($lhp->content->metadata_tambahan['batasan_tanggung_jawab'] ?? null) !!}
                     </div>
-                </li>
-            </ol>
-        </div>
+                </td>
+            </tr>
+        </table>
 
         <div style="text-align: justify; margin-bottom: 8px;">
-            3. Sasaran dan Ruang Lingkup Audit
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 2px; margin-bottom: 5px; border: none;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 2px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">a.</td>
+                    <td width="25px" valign="top" style="border: none;">3.</td>
+                    <td valign="top" style="border: none;">Sasaran dan Ruang Lingkup Audit</td>
+                </tr>
+            </table>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
+                <tr>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">a.</td>
                     <td valign="top" style="border: none;">
                         Sasaran Audit<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['sasaran_audit'] ?? null) !!}</div>
                     </td>
                 </tr>
             </table>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">b.</td>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">b.</td>
                     <td valign="top" style="border: none;">
-                        Ruang lingkup Audit<br>
+                        Ruang Lingkup Audit<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['ruang_lingkup'] ?? null) !!}</div>
                     </td>
                 </tr>
             </table>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 3px; border: none;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">c.</td>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">c.</td>
                     <td valign="top" style="border: none;">
                         Periode Audit<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['periode_audit'] ?? null) !!}</div>
@@ -213,46 +413,61 @@
         </div>
 
         <div style="text-align: justify; margin-bottom: 8px;">
-            4. Informasi Auditi
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 2px; margin-bottom: 5px; border: none;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 2px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">a.</td>
+                    <td width="25px" valign="top" style="border: none;">4.</td>
+                    <td valign="top" style="border: none;">Informasi Auditi</td>
+                </tr>
+            </table>
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
+                <tr>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">a.</td>
                     <td valign="top" style="border: none;">
                         Tujuan Program<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_tujuan_program'] ?? null) !!}</div>
                     </td>
                 </tr>
             </table>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">b.</td>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">b.</td>
                     <td valign="top" style="border: none;">
                         Kegiatan Program<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_kegiatan_program'] ?? null) !!}</div>
                     </td>
                 </tr>
             </table>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">c.</td>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">c.</td>
                     <td valign="top" style="border: none;">
                         Lokasi Program dan Alokasi Dana<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_lokasi_dana'] ?? null) !!}</div>
                     </td>
                 </tr>
             </table>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 5px; border: none;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">d.</td>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">d.</td>
                     <td valign="top" style="border: none;">
-                        Sumber dana<br>
+                        Sumber Dana<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_sumber_dana'] ?? null) !!}</div>
                     </td>
                 </tr>
             </table>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 3px; border: none;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 4px; border: none;">
                 <tr>
-                    <td width="20" valign="top" style="border: none;">e.</td>
+                    <td width="25px" style="border: none;"></td>
+                    <td width="25px" valign="top" style="border: none;">e.</td>
                     <td valign="top" style="border: none;">
                         Struktur Organisasi<br>
                         <div class="editor-content">{!! $renderRichText($lhp->content->metadata_tambahan['info_struktur_org'] ?? null) !!}</div>
@@ -261,12 +476,17 @@
             </table>
         </div>
 
-        <div style="text-align: justify; margin-bottom: 12px;">
-            5. Penilaian atas Sistem Pengendalian Intern<br>
-            <div class="editor-content" style="margin-top: 2px;">
-                {!! $renderRichText($lhp->content->metadata_tambahan['penilaian_spi'] ?? null) !!}
-            </div>
-        </div>
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 12px;">
+            <tr>
+                <td class="report-number" valign="top">5.</td>
+                <td valign="top">
+                    Penilaian atas Sistem Pengendalian Intern<br>
+                    <div class="editor-content" style="margin-top: 2px;">
+                        {!! $renderRichText($lhp->content->metadata_tambahan['penilaian_spi'] ?? null) !!}
+                    </div>
+                </td>
+            </tr>
+        </table>
 
         {{-- Page Break untuk memisahkan BAB II ke halaman baru --}}
         <div class="page-break"></div>
@@ -274,33 +494,72 @@
         <div style="text-align: center; font-weight: bold; margin-top: 15px;">
             BAB II<br>URAIAN HASIL AUDIT
         </div>
-        <ol style="margin-top: 10px;">
-            <li>Penilaian atas Ketaatan terhadap Ketentuan (area, proses, sistem, fungsi, program/kegiatan)</li>
-            <li>Kesesuaian Output dengan Tujuan Program</li>
-            <li>Temuan Hasil Audit
-                @forelse($lhp->findings as $finding)
-                    <div style="text-align: justify; margin-bottom: 6px; padding-left: 18px; margin-top: 4px;">
-                        <div>
-                            {{ $loop->iteration }}.
-                        </div>
-                        <div class="editor-content" style="margin-top: 2px;">
+
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 10px;">
+            <tr>
+                <td class="report-number" valign="top">1.</td>
+                <td valign="top">
+                    Penilaian atas Ketaatan terhadap Ketentuan (area, proses, sistem, fungsi, program/kegiatan)<br>
+                    <div class="editor-content" style="margin-top: 2px;">
+                        {!! $renderRichText($lhp->penilaian_ketaatan ?? null) !!}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-number" valign="top">2.</td>
+                <td valign="top">
+                    Kesesuaian Output dengan Tujuan Program<br>
+                    <div class="editor-content" style="margin-top: 2px;">
+                        {!! $renderRichText($lhp->kesesuaian_output ?? null) !!}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-number" valign="top">3.</td>
+                <td valign="top">
+                    Temuan Hasil Audit
+                    @forelse($lhp->findings as $finding)
+                        <div class="editor-content" style="margin-top: 2px; margin-bottom: 6px;">
                             {!! $renderRichText($finding->uraian_temuan, '................................................................') !!}
                         </div>
-                        @if(($finding->kerugian_negara > 0) || ($finding->kerugian_daerah > 0))
-                            <div style="margin-top: 4px;">
-                                <i>(Nilai Kerugian Negara: Rp{{ number_format($finding->kerugian_negara ?? 0, 2, ',', '.') }} | Kerugian Daerah: Rp{{ number_format($finding->kerugian_daerah ?? 0, 2, ',', '.') }})</i>
-                            </div>
-                        @endif
+                    @empty
+                        <div style="text-align: justify; margin-bottom: 6px; margin-top: 4px;">
+                            ................................................................
+                        </div>
+                    @endforelse
+                </td>
+            </tr>
+        </table>
+
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-number" valign="top">4.</td>
+                <td valign="top">
+                    Hal-hal Penting Lainnya yang Perlu Diperhatikan<br>
+                    <div class="editor-content" style="margin-top: 2px;">
+                        {!! $renderRichText($lhp->hal_penting ?? null) !!}
                     </div>
-                @empty
-                    <div style="text-align: justify; margin-bottom: 6px; padding-left: 18px; margin-top: 4px;">
-                        1. ................................................................
+                </td>
+            </tr>
+        </table>
+
+        <table class="report-point" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="report-number" valign="top">5.</td>
+                <td valign="top">
+                    Tindak Lanjut Temuan Audit Tahun Sebelumnya<br>
+                    <div class="editor-content" style="margin-top: 2px;">
+                        {!! $renderRichText($lhp->tindak_lanjut ?? null) !!}
                     </div>
-                @endforelse
-            </li>
-            <li>Hal-hal Penting Lainnya yang Perlu Diperhatikan</li>
-            <li>Tindak Lanjut Temuan Audit Tahun Sebelumnya</li>
-        </ol>
+                </td>
+            </tr>
+        </table>
         <div style="text-align: center; font-weight: bold; margin-top: 15px;">
             BAB III<br>PENUTUP
         </div>
@@ -310,7 +569,7 @@
         </div>
 
         {{-- TABLE TANDA TANGAN (KIRI: INSPEKTUR, KANAN: TIM PEMERIKSA) --}}
-        <table width="100%" style="border: none; page-break-inside: avoid; margin-top: 20px;">
+        <table class="signature-table" width="100%" style="border: none; page-break-inside: avoid; margin-top: 20px;">
             <tr>
                 <td width="50%" style="border: none; text-align: center; vertical-align: top; line-height: 1.2;">
                     Mengetahui/Menyetujui :<br><br>
@@ -416,7 +675,7 @@
             Demikian Surat ini disampaikan, untuk bahan pembinaan selanjutnya dan atas perhatian Bapak, diucapkan terima kasih.
         </div>
 
-        <table width="100%" style="border: none; page-break-inside: avoid;">
+        <table class="signature-table" width="100%" style="border: none; page-break-inside: avoid;">
             <tr>
                 <td width="50%" style="border: none;"></td>
                 <td width="50%" style="border: none; text-align: center; line-height: 1.2;">

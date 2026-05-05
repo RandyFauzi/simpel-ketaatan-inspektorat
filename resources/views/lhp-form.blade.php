@@ -418,12 +418,27 @@
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between gap-3">
                         <h2 class="font-bold text-slate-700 flex items-center gap-2"><x-lucide-layout-list
                                 class="w-5 h-5 text-amber-600" />Step 4 - Uraian Hasil Audit (BAB II) & Penutup</h2>
-                        <button type="button" @click="addFinding()"
+                        <button type="button" @click="addFinding()" style="display: none;"
                             class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg"><x-lucide-plus
                                 class="w-4 h-4" /> Tambah Temuan</button>
                     </div>
                     <div class="p-6 space-y-5">
-                        <template x-if="form.findings.length === 0">
+                        <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40">
+                            <label class="block text-sm font-bold text-slate-800 mb-1.5">1. Penilaian atas Ketaatan terhadap Ketentuan</label>
+                            <input id="penilaian_ketaatan" type="hidden" name="penilaian_ketaatan" x-model="form.penilaian_ketaatan">
+                            <trix-editor input="penilaian_ketaatan"
+                                class="bg-white border border-slate-200 rounded-xl"></trix-editor>
+                        </div>
+                        <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40">
+                            <label class="block text-sm font-bold text-slate-800 mb-1.5">2. Kesesuaian Output dengan Tujuan Program</label>
+                            <input id="kesesuaian_output" type="hidden" name="kesesuaian_output" x-model="form.kesesuaian_output">
+                            <trix-editor input="kesesuaian_output"
+                                class="bg-white border border-slate-200 rounded-xl"></trix-editor>
+                        </div>
+                        <div class="flex items-center justify-between gap-3 pt-2">
+                            <h3 class="text-sm font-extrabold text-slate-700">3. Temuan Hasil Audit</h3>
+                        </div>
+                        <template x-if="form.findings.length === 0" style="display: none;">
                             <div class="text-center py-10 border border-dashed border-slate-200 rounded-2xl">
                                 <x-lucide-inbox class="w-9 h-9 text-slate-300 mx-auto mb-3" />
                                 <p class="text-sm text-slate-500 font-semibold">Belum ada temuan. Klik tombol Tambah Temuan.
@@ -432,7 +447,7 @@
                         </template>
                         <template x-for="(finding, fIdx) in form.findings" :key="'finding-'+fIdx">
                             <div class="border border-slate-200 rounded-2xl p-5 bg-slate-50/30">
-                                <div class="flex items-center justify-between gap-3 mb-4">
+                                <div class="flex items-center justify-between gap-3 mb-4" style="display: none;">
                                     <div class="flex items-center gap-2"><span
                                             class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 text-xs font-extrabold flex items-center justify-center"
                                             x-text="fIdx + 1"></span>
@@ -479,6 +494,18 @@
                             <span class="text-xs font-bold text-slate-500 uppercase">Total Estimasi Kerugian</span>
                             <span class="text-lg font-black text-red-600 font-mono"
                                 x-text="'Rp ' + totalKerugian().toLocaleString('id-ID')"></span>
+                        </div>
+                        <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40 mt-6">
+                            <label class="block text-sm font-bold text-slate-800 mb-1.5">4. Hal-hal Penting Lainnya yang Perlu Diperhatikan</label>
+                            <input id="hal_penting" type="hidden" name="hal_penting" x-model="form.hal_penting">
+                            <trix-editor input="hal_penting"
+                                class="bg-white border border-slate-200 rounded-xl"></trix-editor>
+                        </div>
+                        <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40 mt-6">
+                            <label class="block text-sm font-bold text-slate-800 mb-1.5">5. Tindak Lanjut Temuan Audit Tahun Sebelumnya</label>
+                            <input id="tindak_lanjut" type="hidden" name="tindak_lanjut" x-model="form.tindak_lanjut">
+                            <trix-editor input="tindak_lanjut"
+                                class="bg-white border border-slate-200 rounded-xl"></trix-editor>
                         </div>
                         <div class="trix-large border border-slate-200 rounded-2xl p-4 bg-slate-50/40 mt-6">
                             <label class="block text-sm font-bold text-slate-800 mb-1.5">Penutup (Manual)</label>
@@ -711,6 +738,31 @@
                 kerugian_negara: f.kerugian_negara || 0,
                 kerugian_daerah: f.kerugian_daerah || 0
             })) : [];
+            const blankFinding = () => ({
+                kode_temuan: '',
+                uraian_temuan_rekomendasi: '',
+                kerugian_negara: 0,
+                kerugian_daerah: 0
+            });
+            const normalizeSingleFinding = (findings) => {
+                if (!Array.isArray(findings) || findings.length === 0) {
+                    return [blankFinding()];
+                }
+
+                if (findings.length === 1) {
+                    return [{ ...blankFinding(), ...findings[0] }];
+                }
+
+                return [{
+                    kode_temuan: findings[0].kode_temuan || '',
+                    uraian_temuan_rekomendasi: findings
+                        .map((finding) => finding.uraian_temuan_rekomendasi || finding.uraian_temuan || '')
+                        .filter(Boolean)
+                        .join('<br><br>'),
+                    kerugian_negara: findings.reduce((sum, finding) => sum + (parseFloat(finding.kerugian_negara) || 0), 0),
+                    kerugian_daerah: findings.reduce((sum, finding) => sum + (parseFloat(finding.kerugian_daerah) || 0), 0),
+                }];
+            };
 
             const storageKey = isEdit ? ('lhp_draft_edit_' + editData.id) : 'lhp_draft_new';
             const normalizeDateInput = (value) => {
@@ -773,16 +825,16 @@
                     info_sumber_dana: isEdit && editMeta ? (editMeta.info_sumber_dana || '') : '',
                     info_struktur_org: isEdit && editMeta ? (editMeta.info_struktur_org || '') : '',
                     penilaian_spi: isEdit && editMeta ? (editMeta.penilaian_spi || '') : '',
-                    penilaian_ketaatan: isEdit && editMeta ? (editMeta.penilaian_ketaatan || '') : '',
-                    kesesuaian_output: isEdit && editMeta ? (editMeta.kesesuaian_output || '') : '',
-                    hal_penting_lainnya: isEdit && editMeta ? (editMeta.hal_penting_lainnya || '') : '',
-                    tindak_lanjut_sebelumnya: isEdit && editMeta ? (editMeta.tindak_lanjut_sebelumnya || '') : '',
+                    penilaian_ketaatan: isEdit ? (editData.penilaian_ketaatan || (editMeta ? (editMeta.penilaian_ketaatan || '') : '')) : '',
+                    kesesuaian_output: isEdit ? (editData.kesesuaian_output || (editMeta ? (editMeta.kesesuaian_output || '') : '')) : '',
+                    hal_penting: isEdit ? (editData.hal_penting || (editMeta ? (editMeta.hal_penting_lainnya || '') : '')) : '',
+                    tindak_lanjut: isEdit ? (editData.tindak_lanjut || (editMeta ? (editMeta.tindak_lanjut_sebelumnya || '') : '')) : '',
                     simpulan_manual: isEdit ? (editData.simpulan_manual || '') : '',
                     rekomendasi_manual: isEdit ? (editData.rekomendasi_manual || '') : '',
                     penutup_manual: isEdit ? (editData.penutup_manual || '') : '',
                     bab_2_hasil_audit: isEdit && editContent ? (editContent.bab_2_hasil_audit || '') : '',
                     bab_3_penutup: isEdit && editContent ? (editContent.bab_3_penutup || '') : '',
-                    findings: isEdit ? existingFindings : []
+                    findings: normalizeSingleFinding(isEdit ? existingFindings : [])
                 },
 
                 init() {
@@ -790,6 +842,7 @@
                     if (persisted) {
                         try { this.form = Object.assign(this.form, JSON.parse(persisted)); } catch (e) { }
                     }
+                    this.form.findings = normalizeSingleFinding(this.form.findings);
                     this.$watch('form', () => this.queueAutosave(), { deep: true });
                 },
                 toggleAccordion(id) { this.openAccordions[id] = !this.openAccordions[id]; },
@@ -834,14 +887,14 @@
                     });
                 },
                 addFinding() {
-                    this.form.findings.push({ kode_temuan: '', uraian_temuan_rekomendasi: '', kerugian_negara: 0, kerugian_daerah: 0 });
+                    this.form.findings = normalizeSingleFinding(this.form.findings);
                     this.$nextTick(() => {
                         if (window.bootstrapFindingSunEditors) {
                             window.bootstrapFindingSunEditors();
                         }
                     });
                 },
-                removeFinding(idx) { this.form.findings.splice(idx, 1); },
+                removeFinding(idx) { this.form.findings = normalizeSingleFinding(this.form.findings); },
                 totalKerugian() { return this.form.findings.reduce((sum, f) => sum + (parseFloat(f.kerugian_negara) || 0) + (parseFloat(f.kerugian_daerah) || 0), 0); },
                 queueAutosave() {
                     if (this.autosaveTimer) clearTimeout(this.autosaveTimer);

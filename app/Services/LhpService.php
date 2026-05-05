@@ -34,6 +34,8 @@ class LhpService
         'simpulan_audit',
         'penilaian_ketaatan',
         'kesesuaian_output',
+        'hal_penting',
+        'tindak_lanjut',
         'hal_penting_lainnya',
         'tindak_lanjut_sebelumnya',
         'simpulan_manual',
@@ -64,6 +66,10 @@ class LhpService
                 'simpulan_manual' => $data['simpulan_manual'] ?? null,
                 'rekomendasi_manual' => $data['rekomendasi_manual'] ?? null,
                 'penutup_manual' => $data['penutup_manual'] ?? null,
+                'penilaian_ketaatan' => $data['penilaian_ketaatan'] ?? null,
+                'kesesuaian_output' => $data['kesesuaian_output'] ?? null,
+                'hal_penting' => $data['hal_penting'] ?? null,
+                'tindak_lanjut' => $data['tindak_lanjut'] ?? null,
                 'created_by'      => auth()->id(),
                 'status'          => 'draft',
                 'tim'             => auth()->user() ? auth()->user()->tim : null,
@@ -94,10 +100,6 @@ class LhpService
                     'info_struktur_org' => $data['info_struktur_org'] ?? null,
                     'penilaian_spi' => $data['penilaian_spi'] ?? null,
                     'simpulan_audit' => $data['simpulan_audit'] ?? null,
-                    'penilaian_ketaatan' => $data['penilaian_ketaatan'] ?? null,
-                    'kesesuaian_output' => $data['kesesuaian_output'] ?? null,
-                    'hal_penting_lainnya' => $data['hal_penting_lainnya'] ?? null,
-                    'tindak_lanjut_sebelumnya' => $data['tindak_lanjut_sebelumnya'] ?? null,
                     'tim_pemeriksa' => $timPemeriksaList,
                     'tembusan' => $tembusanList,
                     // Backward compatibility untuk data lama/template lama.
@@ -184,6 +186,10 @@ class LhpService
                 'simpulan_manual' => $data['simpulan_manual'] ?? null,
                 'rekomendasi_manual' => $data['rekomendasi_manual'] ?? null,
                 'penutup_manual' => $data['penutup_manual'] ?? null,
+                'penilaian_ketaatan' => $data['penilaian_ketaatan'] ?? null,
+                'kesesuaian_output' => $data['kesesuaian_output'] ?? null,
+                'hal_penting' => $data['hal_penting'] ?? null,
+                'tindak_lanjut' => $data['tindak_lanjut'] ?? null,
                 'status'          => 'draft', // Reset ke draft setelah revisi
             ]);
 
@@ -214,10 +220,6 @@ class LhpService
                         'info_struktur_org' => $data['info_struktur_org'] ?? null,
                         'penilaian_spi' => $data['penilaian_spi'] ?? null,
                         'simpulan_audit' => $data['simpulan_audit'] ?? null,
-                        'penilaian_ketaatan' => $data['penilaian_ketaatan'] ?? null,
-                        'kesesuaian_output' => $data['kesesuaian_output'] ?? null,
-                        'hal_penting_lainnya' => $data['hal_penting_lainnya'] ?? null,
-                        'tindak_lanjut_sebelumnya' => $data['tindak_lanjut_sebelumnya'] ?? null,
                         'tim_pemeriksa' => $timPemeriksaList,
                         'tembusan' => $tembusanList,
                         // Backward compatibility untuk data lama/template lama.
