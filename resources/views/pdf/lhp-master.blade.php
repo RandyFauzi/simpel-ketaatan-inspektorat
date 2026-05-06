@@ -69,16 +69,8 @@
 
         .content-block > p,
         .content-block > div {
-            text-indent: 36px;
             margin-top: 0;
             margin-bottom: 4px;
-        }
-
-        .content-block table p,
-        .content-block table div,
-        .content-block .pdf-list p,
-        .content-block .pdf-list div {
-            text-indent: 0 !important;
         }
 
         .point-content {

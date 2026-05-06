@@ -238,7 +238,7 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Di -Buntok
         </div>
 
-        <p style="text-indent: 45px; text-align: justify; margin-bottom: 15px;">
+        <p style="text-align: justify; margin-bottom: 15px;">
             Kami telah melakukan Audit Ketaatan {{ $judulAuditClean }}. Audit dilaksanakan sesuai dengan Standar Audit yang ditetapkan oleh Dewan Pengurus Nasional Asosiasi Auditor Intern Pemerintah Indonesia (AAIPI) dan kami yakin bahwa audit tersebut dapat memberikan dasar yang memadai untuk menyimpulkan ketaatan terhadap peraturan perundang-undangan, memberikan saran perbaikan yang diperlukan untuk perbaikan pengelolaan risiko dan proses pengendalian intern serta tata kelola pemerintahan.
         </p>
 
@@ -281,8 +281,8 @@
             </div>
         </div>
 
-        <p style="text-indent: 0; margin-bottom: 5px;">Demikian Kami sampaikan, untuk dapat melakukan langkah-langkah tindak lanjut yang diperlukan.</p>
-        <p style="text-indent: 0; margin-bottom: 30px;">Atas perhatian dan kerjasama yang baik, kami ucapkan terima kasih.</p>
+        <p style="margin-bottom: 5px;">Demikian Kami sampaikan, untuk dapat melakukan langkah-langkah tindak lanjut yang diperlukan.</p>
+        <p style="margin-bottom: 30px;">Atas perhatian dan kerjasama yang baik, kami ucapkan terima kasih.</p>
 
         <table class="signature-table" width="100%" style="border: none; page-break-inside: avoid;">
             <tr>
@@ -545,7 +545,7 @@
             BAB III<br>PENUTUP
         </div>
 
-        <div class="editor-content" style="text-align: justify; margin-bottom: 30px; text-indent: 45px; margin-top: 8px;">
+        <div class="editor-content" style="text-align: justify; margin-bottom: 30px; margin-top: 8px;">
             {!! $renderRichText($lhp->penutup_manual ?? null) !!}
         </div>
 
@@ -634,7 +634,7 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Buntok
         </div>
 
-        <div style="text-align: justify; text-indent: 45px; margin-bottom: 15px; line-height: 1.5;">
+        <div style="text-align: justify; margin-bottom: 15px; line-height: 1.5;">
             @php
                 $tanggalSptRaw = $lhp->content->metadata_tambahan['tanggal_spt'] ?? null;
                 try {
@@ -652,7 +652,7 @@
             Berdasarkan Surat Perintah Tugas Inspektorat Daerah Kabupaten Barito Selatan Nomor: {{ $lhp->content->metadata_tambahan['nomor_spt'] ?? '...................' }} tanggal {{ $tanggalSptFormatted }}, dalam rangka melaksanakan Audit {{ $lhp->judul }} Tahun Anggaran {{ $lhp->tahun_anggaran }} pada {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan, dengan ini kami sampaikan bahwa Tim Inspektorat Daerah Kabupaten Barito Selatan telah selesai melaksanakan tugas pemeriksaan pada {{ $lhp->opd->nama_opd ?? 'OPD' }} Kabupaten Barito Selatan, selanjutnya sudah membuat/menyusun Laporan hasil Audit Nomor {{ $lhp->nomor_lhp }} tanggal {{ $tanggalLhpFormatted }} sebagaimana terlampir.
         </div>
 
-        <div style="text-align: justify; text-indent: 45px; margin-bottom: 40px;">
+        <div style="text-align: justify; margin-bottom: 40px;">
             Demikian Surat ini disampaikan, untuk bahan pembinaan selanjutnya dan atas perhatian Bapak, diucapkan terima kasih.
         </div>
 
