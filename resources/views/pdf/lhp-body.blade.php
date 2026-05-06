@@ -169,7 +169,8 @@
             }
             $sanitized = \Mews\Purifier\Facades\Purifier::clean($value, 'audit_wysiwyg');
             // Bersihkan karakter artefak copy/paste yang kadang dirender DOMPDF menjadi "?" di baris terpisah.
-            $sanitized = str_replace("\u{FFFD}", '', $sanitized);
+            // Seringkali text editor (seperti SunEditor) menyimpan zero-width space (&#8203; atau \u200B)
+            $sanitized = str_replace(["\u{FFFD}", "\u{200B}", "\u{200C}", "\u{200D}", "\u{FEFF}", '&#8203;'], '', $sanitized);
             $sanitized = preg_replace('/<\s*(p|div|li)\b[^>]*>\s*\?\s*<\/\s*\1\s*>/iu', '', (string) $sanitized) ?? (string) $sanitized;
             $plainText = html_entity_decode(strip_tags($sanitized), ENT_QUOTES, 'UTF-8');
             $plainText = trim(str_replace("\u{00A0}", ' ', $plainText));
